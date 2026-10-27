@@ -1,0 +1,28 @@
+# --- Sécurité & Clés Privées ---
+.env
+*.env
+secrets.toml
+credentials.json
+
+# --- Environnements Virtuels Python ---
+venv/
+.venv/
+env/
+ENV/
+build/
+dist/
+
+# --- Fichiers caches de Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# --- Fichiers d'historique de Streamlit ---
+.streamlit/config.toml
+.streamlit/secrets.toml
+
+# --- Fichiers Système (Mac / Windows) ---
+.DS_Store
+Thumbs.db
+desktop.ini
