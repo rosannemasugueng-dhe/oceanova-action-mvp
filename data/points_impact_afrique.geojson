@@ -1,0 +1,33 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Nyabarongo River, Kigali",
+        "country": "Rwanda",
+        "risk_index": 82,
+        "maternal_health_hazard": "High - Endocrine Disruptor Alert",
+        "community_status": "Active Alert - Fishers Mobilized"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [30.0412, -1.9706]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Wouri River Estuary, Douala",
+        "country": "Cameroon",
+        "risk_index": 95,
+        "maternal_health_hazard": "Critical - High Toxin Bioaccumulation",
+        "community_status": "Urgent Intervention Needed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.6874, 4.0244]
+      }
+    }
+  ]
+}
