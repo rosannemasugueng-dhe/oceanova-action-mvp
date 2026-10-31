@@ -161,7 +161,7 @@ if os.path.exists(geojson_path):
 
     # --- COMPARATIVE TEMPORAL GRAPH ---
     st.markdown("---")
-    st.subheader("📊 Évolution Temporelle des Microplastiques (2024 - 2026)")
+    st.subheader("📊 Temporal Evolution of Microplastics (2024 - 2026)")
     dates = pd.date_range(start="2024-01-01", end="2026-10-01", freq="ME")
     random.seed(42)
     wouri_data = [50 + (i * 1.5) + random.uniform(-5, 5) for i in range(len(dates))]
