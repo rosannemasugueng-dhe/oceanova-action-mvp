@@ -42,9 +42,8 @@ if os.path.exists(geojson_path):
     carto_attribution = '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors &copy; <a href="https://carto.com">CARTO</a>'
     
     folium.TileLayer(
-        tiles=carto_url,
-        attr=carto_attribution,
-        name="Plan CARTO Voyager",
+        tiles="OpenStreetMap",
+        name="Plan OpenStreetMap",
         overlay=False,
         control=True
     ).add_to(m)
