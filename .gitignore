@@ -1,10 +1,10 @@
-# --- Sécurité & Clés Privées ---
+# --- Security & Private Keys ---
 .env
 *.env
 secrets.toml
 credentials.json
 
-# --- Environnements Virtuels Python ---
+# --- Python Virtual Environments ---
 venv/
 .venv/
 env/
@@ -12,17 +12,17 @@ ENV/
 build/
 dist/
 
-# --- Fichiers caches de Python ---
+# --- Python cache files ---
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 
-# --- Fichiers d'historique de Streamlit ---
+# --- Streamlit history files ---
 .streamlit/config.toml
 .streamlit/secrets.toml
 
-# --- Fichiers Système (Mac / Windows) ---
+# --- System Files (Mac / Windows) ---
 .DS_Store
 Thumbs.db
 desktop.ini
