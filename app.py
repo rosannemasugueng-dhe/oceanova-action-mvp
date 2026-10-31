@@ -51,7 +51,7 @@ if os.path.exists(geojson_path):
 
     #2. NASA SATELLITE LAYER (GIBS – VIIRS True Color)
     nasa_url = "https://nasa.gov{z}/{y}/{x}.jpg"
-    nasa_attribution = '&copy; <a href="https://nasa.gov">NASA EOSDIS GIBS</a>'
+    nasa_attribution = '&copy; <a href="https://earthdata.nasa.gov">NASA EOSDIS GIBS</a>'
 
     folium.TileLayer(
         tiles=nasa_url,
@@ -112,7 +112,7 @@ if os.path.exists(geojson_path):
 
    # --- ADDITION OF THE MICROPLASTICS TEMPORAL GRAPH ---
     st.markdown("---")
-    st.subheader("📊 Évolution Temporelle des Microplastiques (2024 - 2026)")
+    st.subheader("📊 Temporal Evolution of Microplastics (2024 - 2026)")
     
     # Creation of simulated pollution data for Cameroon and Rwanda
     dates = pd.date_range(start="2024-01-01", end="2026-10-01", freq="ME")
@@ -130,7 +130,7 @@ if os.path.exists(geojson_path):
 
     # Displaying the interactive chart via Streamlit
     st.line_chart(chart_data, height=350, use_container_width=True)
-    st.caption("Données simulées basées sur les tendances d'imagerie historique Landsat-8 et Sentinel-2.")
+    st.caption("Simulated data based on historical Landsat-8 and Sentinel-2 imagery trends.")
 
 else:
     st.error(f"GeoJSON data file not found at {geojson_path}. Please check your repository structure.")
