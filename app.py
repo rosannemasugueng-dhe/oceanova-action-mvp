@@ -67,8 +67,12 @@ if submit_button and location_name:
             "Cameroon": [4.02, 9.68], "Rwanda": [-1.97, 30.04], "Nigeria": [6.52, 3.37],
             "Ghana": [5.55, -0.2], "DR Congo": [-4.32, 15.31], "Kenya": [-1.28, 36.82]
         }
-        lat = base_coords[new_country] + random.uniform(-0.3, 0.3)
-        lon = base_coords[new_country] + random.uniform(-0.3, 0.3)
+        # Extracting the base latitude and longitude from the list
+        base_lat = base_coords[new_country][0]
+        base_lon = base_coords[new_country][1]
+        lat = base_lat + random.uniform(-0.3, 0.3)
+        lon = base_lon + random.uniform(-0.3, 0.3)
+
         new_feature = {
             "type": "Feature",
             "properties": {
