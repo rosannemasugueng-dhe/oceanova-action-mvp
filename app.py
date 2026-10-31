@@ -18,7 +18,7 @@ st.title("🌍 OceaNova Action — One Health Predictive Dashboard")
 st.markdown("### Early-Warning System for Riverine Microplastic Risks & Maternal Health Protection")
 
 # Path to the GeoJSON file
-geojson_path = "data/points_impact_afrique.geojson"
+geojson_path = "data/points_impact_africa.geojson"
 
 # --- SIDEBAR & FILTERING / CITIZEN SCIENCE SYSTEM ---
 st.sidebar.image("https://icons8.com", width=80)
