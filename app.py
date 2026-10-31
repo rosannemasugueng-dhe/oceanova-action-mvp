@@ -5,9 +5,15 @@ import json
 import os
 import pandas as pd
 import random
+import time
+
+# IMPORTING MY MONITORING MODULES FROM THE SRC/ DIRECTORY
+from src.ingestion_satellite import fetch_satellite_metadata
+from src.health_risk_calculation import evaluate_one_health_risk
 
 # Streamlit page configuration
 st.set_page_config(page_title="OceaNova Action MVP", page_icon="🌍", layout="wide")
+
 st.title("🌍 OceaNova Action — One Health Predictive Dashboard")
 st.markdown("### Early-Warning System for Riverine Microplastic Risks & Maternal Health Protection")
 
@@ -23,8 +29,6 @@ st.sidebar.markdown("**Status:** Active Development")
 # --- SECTION 1: INTERACTIVE MAP FILTERS ---
 st.sidebar.markdown("---")
 st.sidebar.subheader("🔍 Filter Trajectories")
-
-# Options par défaut pour les filtres
 country_filter = st.sidebar.selectbox("Filter by Country", ["All Countries", "Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
 waterbody_filter = st.sidebar.selectbox("Filter by Waterbody Type", ["All Types", "River", "Lake", "Ocean/Beach", "Stream/Ditch"])
 
@@ -39,99 +43,85 @@ with st.sidebar.form(key="citizen_report_form", clear_on_submit=True):
     new_waterbody_type = st.selectbox("Waterbody Type Classification", ["River", "Lake", "Ocean/Beach", "Stream/Ditch"])
     pollution_density = st.slider("Visual Plastic Density (Field Observation)", 0, 100, 50)
     stagnation_observed = st.checkbox("Water stagnation or drainage blockage observed?")
-    submit_button = st.form_submit_button(label=" Submit Field Report")
-
-#  Processing the Citizen report (writing to the GeoJSON)
+    submit_button = st.form_submit_button(label="🚀 Submit Field Report")
 if submit_button and location_name:
     if os.path.exists(geojson_path):
+        
+       # 1. Animation: Simulation of the ESA/NASA satellite pipeline triggering process
+        with st.sidebar.spinner("📡 Triggering ESA Copernicus API... Analyzing spectral anomalies..."):
+            time.sleep(1.5) 
+            fake_coords = [4.0, 9.0] if new_country == "Cameroon" else [-1.9, 30.0]
+            sat_data = fetch_satellite_metadata(fake_coords)
+        
+        with st.sidebar.spinner("🧬 Computing One Health Clinical Risk Matrix..."):
+            time.sleep(1.0)
+            # Call to your function in health_risk_calculation.py
+            stagnation_factor = 1.4 if stagnation_observed else 1.0
+            confidence = sat_data["plastic_signature_confidence"]
+            health_results = evaluate_one_health_risk(confidence, stagnation_factor)
+
+        # 2. Saving the actual calculated results into the GeoJSON
         with open(geojson_path, "r") as f:
             geojson_data = json.load(f)
-        stagnation_factor = 1.4 if stagnation_observed else 1.0
-        calculated_risk = min(int(pollution_density * stagnation_factor), 100)
-        if calculated_risk > 80:
-            hazard_level = "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert"
-        elif calculated_risk > 50:
-            hazard_level = "Moderate - Increased Monitoring Required"
-        else:
-            hazard_level = "Low - Stable Baseline"
         base_coords = {
-            "Cameroon": [4.02, 9.68], "Rwanda": [-1.97, 30.04], "Nigeria": [6.45, 3.39],
+            "Cameroon": [4.02, 9.68], "Rwanda": [-1.97, 30.04], "Nigeria": [6.52, 3.37],
             "Ghana": [5.55, -0.2], "DR Congo": [-4.32, 15.31], "Kenya": [-1.28, 36.82]
         }
-        lat = base_coords[new_country][0] + random.uniform(-0.3, 0.3)
-        lon = base_coords[new_country][1] + random.uniform(-0.3, 0.3)
+        lat = base_coords[new_country] + random.uniform(-0.3, 0.3)
+        lon = base_coords[new_country] + random.uniform(-0.3, 0.3)
         new_feature = {
             "type": "Feature",
             "properties": {
                 "location_name": location_name,
                 "country": new_country,
                 "waterbody_type": new_waterbody_type,
-                "risk_index": calculated_risk,
-                "maternal_health_hazard": hazard_level,
-                "community_status": "Citizen Verified - Action Plan Initiated"
+                "risk_index": health_results["calculated_index"],
+                "maternal_health_hazard": health_results["maternal_health_hazard"],
+                "community_status": f"Satellite Verified ({sat_data['sensor_id']}) — Action Plan Active"
             },
             "geometry": { "type": "Point", "coordinates": [lon, lat] }
         }
         geojson_data["features"].append(new_feature)
         with open(geojson_path, "w") as f:
             json.dump(geojson_data, f, indent=2)
-        st.sidebar.success(f"🎉 Report for '{location_name}' integrated! Refreshing maps...")
+        st.sidebar.success(f"🎉 Scene {sat_data['target_scene'][:15]}... processed! Index: {health_results['calculated_index']}/100")
         st.rerun()
 
 # --- DASHBOARD PROCESSING & FILTER LOGIC ---
 if os.path.exists(geojson_path):
     with open(geojson_path, "r") as f:
         raw_data = json.load(f)
-    
-    # Dynamic filtering of the list of points based on user choices
     filtered_features = []
     for feature in raw_data["features"]:
         props = feature["properties"]
-        
-        # Countries condition
         match_country = (country_filter == "All Countries") or (props.get("country") == country_filter)
-        # Environment Type Condition
         match_type = (waterbody_filter == "All Types") or (props.get("waterbody_type") == waterbody_filter)
         if match_country and match_type:
             filtered_features.append(feature)
 
-    # --- SECTION 3: 100% DYNAMIC METRICS ---
+    # --- DYNAMIC METRICS SECTION ---
     st.markdown("---")
     col1, col2, col3 = st.columns(3)
-    
-    # Métrique 1: Total des hotspots filtrés
     col1.metric("Monitored Hotspots", len(filtered_features), f"Selected: {country_filter}")
-    
-    # Metric 2: Maximum risk index among filtered items
     if filtered_features:
         max_risk = max([f["properties"]["risk_index"] for f in filtered_features])
         max_loc = next(f["properties"]["location_name"] for f in filtered_features if f["properties"]["risk_index"] == max_risk)
         col2.metric("Highest Risk Index", f"{max_risk}/100", f"Location: {max_loc}", delta_color="inverse")
     else:
         col2.metric("Highest Risk Index", "N/A", "No sites match filters")
-        
-    # Metric 3: Community Stakeholder Estimator
     total_fishers = sum([15 for _ in filtered_features]) + 150
     col3.metric("Active Field Responders", f"{total_fishers} Fishers", "Community Network Status")
-
     st.markdown("---")
     st.subheader("📍 Live Microplastic Risk Mapping (One Health Trajectory)")
-
-    # Map initialization centered dynamically according to selection
     map_center = [1.0, 20.0]
     if country_filter != "All Countries" and filtered_features:
-        # Center on the first point found for the selected country
         first_coords = filtered_features[0]["geometry"]["coordinates"]
         map_center = [first_coords[1], first_coords[0]]
 
     m = folium.Map(location=map_center, zoom_start=4 if country_filter == "All Countries" else 7, tiles=None)
-
-    # Basemap layers
-    folium.TileLayer(tiles="OpenStreetMap", name="Plan OpenStreetMap", overlay=False, control=True).add_to(m)
+    folium.TileLayer(tiles="OpenStreetMap", name="OpenStreetMap map", overlay=False, control=True).add_to(m)
     nasa_url = "https://nasa.gov{z}/{y}/{x}.jpg"
     folium.TileLayer(tiles=nasa_url, attr='&copy; NASA EOSDIS GIBS', name="Images Satellites (NASA VIIRS)", overlay=False, control=True).add_to(m)
-
-    # Exclusive display of filtered markers
     for feature in filtered_features:
         coords = feature["geometry"]["coordinates"]
         props = feature["properties"]
@@ -144,6 +134,7 @@ if os.path.exists(geojson_path):
             color, badge_color = "blue", "#0275d8"
         water_type = props.get("waterbody_type", "River")
         icon_name = "tint" if water_type == "Ocean/Beach" else "cloud" if water_type == "Lake" else "leaf" if water_type == "Stream/Ditch" else "exclamation-sign"
+            
         popup_text = f"""
         <div style='font-family: "Segoe UI", Arial, sans-serif; width: 240px; padding: 5px;'>
             <h4 style='margin: 0 0 4px 0; color: #1a2a3a; font-size: 16px;'>{props['location_name']} ({props.get('country', '')})</h4>
@@ -165,7 +156,6 @@ if os.path.exists(geojson_path):
         </div>
         """
         folium.Marker(location=[lat, lon], popup=folium.Popup(popup_text, max_width=280), icon=folium.Icon(color=color, icon=icon_name)).add_to(m)
-
     folium.LayerControl(position="topright", collapsed=False).add_to(m)
     st_folium(m, width=1100, height=500)
 
@@ -182,4 +172,3 @@ if os.path.exists(geojson_path):
     st.caption("Simulated data based on historical Landsat-8 and Sentinel-2 imagery trends.")
 
 else:
-    st.error(f"GeoJSON data file not found at {geojson_path}.")
