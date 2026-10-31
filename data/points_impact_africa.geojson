@@ -1,0 +1,80 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Nyabarongo River, Kigali",
+        "country": "Rwanda",
+        "waterbody_type": "River",
+        "risk_index": 82,
+        "maternal_health_hazard": "High - Endocrine Disruptor Alert",
+        "community_status": "Active Alert - Fishers Mobilized"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [30.0412, -1.9706]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Wouri River Estuary, Douala",
+        "country": "Cameroon",
+        "waterbody_type": "River",
+        "risk_index": 95,
+        "maternal_health_hazard": "Critical - High Toxin Bioaccumulation",
+        "community_status": "Urgent Intervention Needed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.6874, 4.0244]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Lac Kivu, Rubavu",
+        "country": "Rwanda",
+        "waterbody_type": "Lake",
+        "risk_index": 55,
+        "maternal_health_hazard": "Moderate - Plastic Degradation Hazard",
+        "community_status": "Active Monitoring"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [29.2500, -1.6800]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Kribi Atlantique Beach",
+        "country": "Cameroon",
+        "waterbody_type": "Ocean/Beach",
+        "risk_index": 78,
+        "maternal_health_hazard": "High - Marine Microplastic Accumulation",
+        "community_status": "Community Cleanup Scheduled"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.9075, 2.9392]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Ruisseau de Mpazi, Kigali",
+        "country": "Rwanda",
+        "waterbody_type": "Stream/Ditch",
+        "risk_index": 89,
+        "maternal_health_hazard": "High - Urban Runoff Contamination",
+        "community_status": "Citizen Science Reports Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [30.0522, -1.9441]
+      }
+    }
+  ]
+}
