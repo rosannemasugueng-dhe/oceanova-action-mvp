@@ -172,3 +172,4 @@ if os.path.exists(geojson_path):
     st.caption("Simulated data based on historical Landsat-8 and Sentinel-2 imagery trends.")
 
 else:
+    st.error(f"GeoJSON data file not found at {geojson_path}. Please check your repository structure.")
