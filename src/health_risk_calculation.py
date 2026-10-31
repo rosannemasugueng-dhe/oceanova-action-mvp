@@ -1,9 +1,9 @@
-def evaluate_one_health_risk(satellite_confidence, water_stagnation_factor):
+def evaluate_one_health_risk(satellite_confidence, water_stagnation_factor=1.0):
     """
     Computes the Microplastic Health Risk Index integrating environmental matrices 
     with clinical bioaccumulation risk parameters for maternal health.
     """
-    # Algorithmic fusion of environmental observations and local river parameters
+    # Algorithmic fusion of satellite observations and ground-based parameters
     base_risk = (satellite_confidence * 60) + (water_stagnation_factor * 40)
     final_index = min(int(base_risk), 100)
     
