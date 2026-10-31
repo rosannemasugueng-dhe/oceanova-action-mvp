@@ -172,7 +172,7 @@ if os.path.exists(geojson_path):
     rwanda_data = [35 + (i * 0.9) + random.uniform(-4, 4) for i in range(len(dates))]
     
     chart_data = pd.DataFrame({"Mois": dates, "Fleuve Wouri (Cameroun)": wouri_data, "Lac Kivu / Ruzizi (Rwanda)": rwanda_data}).set_index("Mois")
-    st.line_chart(chart_data, height=350, use_container_width=True)
+    st.line_chart(chart_data, height=350, width="stretch")
     st.caption("Simulated data based on historical Landsat-8 and Sentinel-2 imagery trends.")
 
 else:
