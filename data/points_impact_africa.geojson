@@ -7,16 +7,14 @@
         "location_name": "Nyabarongo River, Kigali",
         "country": "Rwanda",
         "waterbody_type": "River",
-        "risk_index": 82,
-        "maternal_health_hazard": "High - Endocrine Disruptor Alert",
+        "global_risk_index": 82,
+        "maternal_endocrine_index": 94,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
         "community_status": "Active Alert - Fishers Mobilized"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          30.0412,
-          -1.9706
-        ]
+        "coordinates": [30.0412, -1.9706]
       }
     },
     {
@@ -25,16 +23,14 @@
         "location_name": "Wouri River Estuary, Douala",
         "country": "Cameroon",
         "waterbody_type": "River",
-        "risk_index": 95,
-        "maternal_health_hazard": "Critical - High Toxin Bioaccumulation",
+        "global_risk_index": 95,
+        "maternal_endocrine_index": 99,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
         "community_status": "Urgent Intervention Needed"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          9.6874,
-          4.0244
-        ]
+        "coordinates": [9.6874, 4.0244]
       }
     },
     {
@@ -43,16 +39,14 @@
         "location_name": "Lac Kivu, Rubavu",
         "country": "Rwanda",
         "waterbody_type": "Lake",
-        "risk_index": 55,
-        "maternal_health_hazard": "Moderate - Plastic Degradation Hazard",
+        "global_risk_index": 55,
+        "maternal_endocrine_index": 55,
+        "maternal_health_hazard": "MODERATE - Increased Clinical & Field Monitoring Required",
         "community_status": "Active Monitoring"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          29.25,
-          -1.68
-        ]
+        "coordinates": [29.25, -1.68]
       }
     },
     {
@@ -61,16 +55,14 @@
         "location_name": "Kribi Atlantique Beach",
         "country": "Cameroon",
         "waterbody_type": "Ocean/Beach",
-        "risk_index": 78,
-        "maternal_health_hazard": "High - Marine Microplastic Accumulation",
+        "global_risk_index": 78,
+        "maternal_endocrine_index": 89,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
         "community_status": "Community Cleanup Scheduled"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          9.9075,
-          2.9392
-        ]
+        "coordinates": [9.9075, 2.9392]
       }
     },
     {
@@ -79,16 +71,14 @@
         "location_name": "Ruisseau de Mpazi, Kigali",
         "country": "Rwanda",
         "waterbody_type": "Stream/Ditch",
-        "risk_index": 89,
-        "maternal_health_hazard": "High - Urban Runoff Contamination",
+        "global_risk_index": 89,
+        "maternal_endocrine_index": 98,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
         "community_status": "Citizen Science Reports Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          30.0522,
-          -1.9441
-        ]
+        "coordinates": [30.0522, -1.9441]
       }
     },
     {
@@ -97,52 +87,46 @@
         "location_name": "Mouanko",
         "country": "Cameroon",
         "waterbody_type": "River",
-        "risk_index": 65,
-        "maternal_health_hazard": "Moderate - Increased Monitoring Required",
-        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+        "global_risk_index": 65,
+        "maternal_endocrine_index": 72,
+        "maternal_health_hazard": "MODERATE - Increased Clinical & Field Monitoring Required",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) — Action Plan Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          9.506589706151795,
-          3.880644525585421
-        ]
+        "coordinates": [9.506589706151795, 3.880644525585421]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "location_name": "sanaga ",
+        "location_name": "Sanaga",
         "country": "Cameroon",
         "waterbody_type": "River",
-        "risk_index": 100,
-        "maternal_health_hazard": "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert",
-        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+        "global_risk_index": 92,
+        "maternal_endocrine_index": 100,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) — Action Plan Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          9.419713163126929,
-          3.960698872213397
-        ]
+        "coordinates": [9.419713163126929, 3.960698872213397]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "location_name": "Lac Kivy",
+        "location_name": "Lac Kivu",
         "country": "Rwanda",
         "waterbody_type": "River",
-        "risk_index": 58,
-        "maternal_health_hazard": "Moderate - Increased Monitoring Required",
-        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+        "global_risk_index": 58,
+        "maternal_endocrine_index": 58,
+        "maternal_health_hazard": "MODERATE - Increased Clinical & Field Monitoring Required",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) — Action Plan Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          29.90064452558542,
-          -2.0807281711645507
-        ]
+        "coordinates": [29.90064452558542, -2.0807281711645507]
       }
     },
     {
@@ -151,16 +135,14 @@
         "location_name": "Mounako",
         "country": "Cameroon",
         "waterbody_type": "River",
-        "risk_index": 49,
-        "maternal_health_hazard": "Low - Stable Baseline",
-        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+        "global_risk_index": 49,
+        "maternal_endocrine_index": 49,
+        "maternal_health_hazard": "LOW - Stable Baseline Environmental Threshold",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) — Action Plan Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          9.506589706151795,
-          3.880644525585421
-        ]
+        "coordinates": [9.506589706151795, 3.880644525585421]
       }
     },
     {
@@ -169,16 +151,14 @@
         "location_name": "Lake Kivu",
         "country": "DR Congo",
         "waterbody_type": "River",
-        "risk_index": 87,
-        "maternal_health_hazard": "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert",
-        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+        "global_risk_index": 87,
+        "maternal_endocrine_index": 96,
+        "maternal_health_hazard": "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) — Action Plan Active"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          15.04971316312693,
-          -4.3793011277866025
-        ]
+        "coordinates": [15.04971316312693, -4.3793011277866025]
       }
     }
   ]
