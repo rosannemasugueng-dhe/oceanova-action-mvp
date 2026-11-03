@@ -13,7 +13,10 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [30.0412, -1.9706]
+        "coordinates": [
+          30.0412,
+          -1.9706
+        ]
       }
     },
     {
@@ -28,7 +31,10 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [9.6874, 4.0244]
+        "coordinates": [
+          9.6874,
+          4.0244
+        ]
       }
     },
     {
@@ -43,7 +49,10 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [29.2500, -1.6800]
+        "coordinates": [
+          29.25,
+          -1.68
+        ]
       }
     },
     {
@@ -58,7 +67,10 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [9.9075, 2.9392]
+        "coordinates": [
+          9.9075,
+          2.9392
+        ]
       }
     },
     {
@@ -73,7 +85,100 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [30.0522, -1.9441]
+        "coordinates": [
+          30.0522,
+          -1.9441
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Mouanko",
+        "country": "Cameroon",
+        "waterbody_type": "River",
+        "risk_index": 65,
+        "maternal_health_hazard": "Moderate - Increased Monitoring Required",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.506589706151795,
+          3.880644525585421
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "sanaga ",
+        "country": "Cameroon",
+        "waterbody_type": "River",
+        "risk_index": 100,
+        "maternal_health_hazard": "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.419713163126929,
+          3.960698872213397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Lac Kivy",
+        "country": "Rwanda",
+        "waterbody_type": "River",
+        "risk_index": 58,
+        "maternal_health_hazard": "Moderate - Increased Monitoring Required",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.90064452558542,
+          -2.0807281711645507
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Mounako",
+        "country": "Cameroon",
+        "waterbody_type": "River",
+        "risk_index": 49,
+        "maternal_health_hazard": "Low - Stable Baseline",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.506589706151795,
+          3.880644525585421
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "location_name": "Lake Kivu",
+        "country": "DR Congo",
+        "waterbody_type": "River",
+        "risk_index": 87,
+        "maternal_health_hazard": "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert",
+        "community_status": "Satellite Verified (SENTINEL-2_MSI_L2A) \u2014 Action Plan Active"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.04971316312693,
+          -4.3793011277866025
+        ]
       }
     }
   ]
