@@ -108,7 +108,13 @@ if os.path.exists(geojson_path):
     col1, col2, col3 = st.columns(3)
     col1.metric("Monitored Hotspots", len(filtered_features), f"Selected: {country_filter}")
     if filtered_features:
-        max_risk = max([f["properties"]["risk_index"] for f in filtered_features])
+            if filtered_features:
+            avg_global = int(pd.Series([f["properties"].get("global_risk_index", 50) for f in filtered_features]).mean())
+            avg_maternal = int(pd.Series([f["properties"].get("maternal_endocrine_index", 50) for f in filtered_features]).mean())
+        
+            col_m2.metric("Mean Global Risk Index", f"{avg_global} / 100", "Ecosystem Toxicity Level")
+            col_m3.metric("Mean Maternal Endocrine Index", f"{avg_maternal} / 100", "Reproductive Hazard Level", delta_color="inverse")
+
         max_loc = next(f["properties"]["location_name"] for f in filtered_features if f["properties"]["risk_index"] == max_risk)
         col2.metric("Highest Risk Index", f"{max_risk}/100", f"Location: {max_loc}", delta_color="inverse")
     else:
