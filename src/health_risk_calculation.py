@@ -1,20 +1,28 @@
-def evaluate_one_health_risk(satellite_confidence, water_stagnation_factor=1.0):
+def calculate_one_health_indices(satellite_fdi, stagnation_index, citizen_reports):
     """
-    Computes the Microplastic Health Risk Index integrating environmental matrices 
-    with clinical bioaccumulation risk parameters for maternal health.
+    Computes the Dual One Health Risk Indices integrating orbital telemetry,
+    field stagnation vectors, and human citizen science reports.
     """
-    # Algorithmic fusion of satellite observations and ground-based parameters
-    base_risk = (satellite_confidence * 60) + (water_stagnation_factor * 40)
-    final_index = min(int(base_risk), 100)
+    # 1. Global Risk Index (0-100): General population toxicity and water safety
+    # Fuses satellite anomalies (40%), field stagnation (30%), and visual reporting density (30%)
+    base_global = (satellite_fdi * 40) + ((stagnation_index / 100) * 30) + ((citizen_reports / 100) * 30)
+    global_index = min(max(int(base_global * 100), 0), 100)
     
-    if final_index > 80:
-        hazard_level = "Critical - Endocrine Disruptor & Toxin Bioaccumulation Alert"
-    elif final_index > 50:
-        hazard_level = "Moderate - Increased Monitoring Required"
+    # 2. Maternal Endocrine Vulnerability Index (0-100): Isolates hormonal disruption hazards
+    # Amplified by persistent water stagnation conditions which increase chemical concentration
+    base_maternal = global_index * (1.15 if stagnation_index > 50 else 1.0)
+    maternal_index = min(max(int(base_maternal), 0), 100)
+    
+    # Tripartite Clinical Hazard Evaluation
+    if maternal_index > 75:
+        hazard_level = "CRITICAL - Endocrine Disruptor & Toxin Bioaccumulation Alert"
+    elif maternal_index > 45:
+        hazard_level = "MODERATE - Increased Clinical & Field Monitoring Required"
     else:
-        hazard_level = "Low - Stable Baseline"
+        hazard_level = "LOW - Stable Baseline Environmental Threshold"
         
     return {
-        "calculated_index": final_index,
-        "maternal_health_hazard": hazard_level
+        "global_risk_index": global_index,
+        "maternal_endocrine_index": maternal_index,
+        "hazard_level": hazard_level
     }
