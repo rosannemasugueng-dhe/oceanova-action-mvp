@@ -17,12 +17,22 @@ st.set_page_config(page_title="OceaNova Action MVP", page_icon="🌌", layout="w
 # --- STYLE CSS : TRANSITION COMPLÈTE VERS LE DARK MODE ENTERPRISE ---
 st.markdown("""
     <style>
-        .stApp { background-color: #0B0F19; color: #FFFFFF; }
-        .sidebar .sidebar-content { background-color: #131A26; }
+        /* Couleurs thématiques pour les titres */
         h1, h2, h3 { color: #00F5D4 !important; font-family: 'Segoe UI', sans-serif; }
-        .stMetric { background-color: #1A2333; padding: 15px; border-radius: 10px; border-left: 5px solid #00F5D4; }
-        div[data-testid="stForm"] { background-color: #131A26; border: 1px solid #1A2333; border-radius: 10px; }
-        p, label { color: #E0E6ED !important; }
+        
+        /* Personnalisation esthétique des blocs de métriques */
+        div[data-testid="stMetric"] { 
+            background-color: rgba(26, 35, 51, 0.05); 
+            padding: 15px; 
+            border-radius: 10px; 
+            border-left: 5px solid #00F5D4; 
+        }
+        
+        /* Subtile délimitation des formulaires */
+        div[data-testid="stForm"] { 
+            border: 1px solid rgba(0, 245, 212, 0.2); 
+            border-radius: 10px; 
+        }
     </style>
 """, unsafe_allow_html=True)
 
