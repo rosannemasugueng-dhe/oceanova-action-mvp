@@ -14,23 +14,43 @@ from src.health_risk_calculation import calculate_one_health_indices
 # Configuration de la page Streamlit (Calée sur le port localhost:8051)
 st.set_page_config(page_title="OceaNova Action MVP", page_icon="🌌", layout="wide")
 
-# --- STYLE CSS : TRANSITION COMPLÈTE VERS LE DARK MODE ENTERPRISE ---
+# --- STYLE CSS APPLIQUÉ : ACCESSIBILITÉ ET HAUT CONTRASTE ---
 st.markdown("""
     <style>
-        /* Couleurs thématiques pour les titres */
-        h1, h2, h3 { color: #00F5D4 !important; font-family: 'Segoe UI', sans-serif; }
-        
-        /* Personnalisation esthétique des blocs de métriques */
-        div[data-testid="stMetric"] { 
-            background-color: rgba(26, 35, 51, 0.05); 
-            padding: 15px; 
-            border-radius: 10px; 
-            border-left: 5px solid #00F5D4; 
+        /* Forcer des titres sombres et très visibles en mode clair */
+        h1, h2, h3 { 
+            color: #0A192F !important; 
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 700;
         }
         
-        /* Subtile délimitation des formulaires */
+        /* Ajuster les descriptions de sous-titres */
+        .stMarkdown p {
+            color: #1E293B !important;
+            font-size: 14px;
+        }
+        
+        /* Embellissement des blocs de métriques avec bordure émeraude claire */
+        div[data-testid="stMetric"] { 
+            background-color: #F8FAFC !important; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 1px solid #E2E8F0;
+            border-left: 5px solid #00B4D8 !important; 
+        }
+        
+        /* Forcer la couleur du texte des métriques */
+        div[data-testid="stMetricLabel"] {
+            color: #475569 !important;
+        }
+        div[data-testid="stMetricValue"] {
+            color: #0F172A !important;
+        }
+        
+        /* Encadrement des formulaires */
         div[data-testid="stForm"] { 
-            border: 1px solid rgba(0, 245, 212, 0.2); 
+            border: 1px solid #CBD5E1; 
+            background-color: #FFFFFF;
             border-radius: 10px; 
         }
     </style>
