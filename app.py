@@ -105,57 +105,60 @@ st.caption(f"{L['subtitle']} | Founder & CEO: Rosanne Masugue Ngangoumoun")
 # Initialization of session state memory
 if "initialized" not in st.session_state:
     st.session_state.initialized = True
-    try:
-        with open("data/points_impact_africa.geojson", "r", encoding="utf-8") as f:
-            geo_data = json.load(f)
-        st.session_state.hotspots = [
-            {
-                "name": ft["properties"].get("location_name", ft["properties"].get("name", "Unknown River")),
-                "country": ft["properties"].get("country", "Unknown"),
-                "ecosystem": ft["properties"].get("waterbody_type", ft["properties"].get("ecosystem", "River")),
-                "latitude": ft["geometry"]["coordinates"][1],
-                "longitude": ft["geometry"]["coordinates"][0],
-                "global_risk": ft["properties"].get("global_risk_index", 50),
-                "maternal_risk": ft["properties"].get("maternal_endocrine_index", 50),
-            }
-            for ft in geo_data["features"]
-        ]
-    except Exception:
-        st.session_state.hotspots = []
-
-
+    # Initial default data
+    st.session_state.hotspots = [
+        {"name": "Nyabarongo River", "country": "Rwanda", "ecosystem": "River", "latitude": -1.97, "longitude": 30.10, "global_risk": 75, "maternal_risk": 81},
+        {"name": "Sanaga River", "country": "Cameroun", "ecosystem": "River", "latitude": 4.20, "longitude": 10.50, "global_risk": 72, "maternal_risk": 78},
+        {"name": "Wouri Estuary", "country": "Cameroun", "ecosystem": "Estuary", "latitude": 4.01, "longitude": 9.67, "global_risk": 80, "maternal_risk": 85}
+    ]
+# Sidebar input forms
 st.sidebar.header(L["sidebar_title"])
+
 with st.sidebar.form("citizen_input_form"):
     location_input = st.text_input(L["input_location"], value="")
-    country_input = st.selectbox(L["input_country"],
-        ["Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
+    country_input = st.selectbox(L["input_country"], ["Cameroun", "Rwanda", "Nigeria", "RDC"])
     eco_input = st.selectbox(L["input_eco"], ["River", "Lake", "Estuary"])
     submitted = st.form_submit_button(L["btn_add"])
+    
+# Delete button outside the form for immediate action    
 if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 0:
     st.session_state.hotspots.pop()
     st.rerun()
+
+# Geocoding logic and independent calculations
 if submitted and location_input:
     geolocator = Nominatim(user_agent="oceanova_analytics_agent")
     try:
-        location = geolocator.geocode(f"{location_input}, {country_input}", timeout=10)
+        search_query = f"{location_input}, {country_input}"
+        location = geolocator.geocode(search_query, timeout=10)
+        
         if location:
-            risk = calculate_one_health_indices(
-                random.uniform(0.4, 0.9), random.randint(40, 95), random.randint(30, 85)
-            )
-            st.session_state.hotspots.append({
-                "name": location_input, "country": country_input, "ecosystem": eco_input,
-                "latitude": location.latitude, "longitude": location.longitude,
-                "global_risk": risk["global_risk_index"],
-                "maternal_risk": risk["maternal_endocrine_index"],
-            })
+            simulated_fdi = random.uniform(0.4, 0.9)
+            simulated_stagnation = random.randint(40, 95)
+            simulated_reports = random.randint(30, 85)
+            
+            risk_results = calculate_one_health_indices(simulated_fdi, simulated_stagnation, simulated_reports)
+            
+            new_point = {
+                "name": location_input,
+                "country": country_input,
+                "ecosystem": eco_input,
+                "latitude": location.latitude,
+                "longitude": location.longitude,
+                "global_risk": risk_results["global_risk_index"],
+                "maternal_risk": risk_results["maternal_endocrine_index"]
+            }
+            st.session_state.hotspots.append(new_point)
+            st.sidebar.success(L["alert_success"])
             st.rerun()
         else:
             st.sidebar.error(L["alert_error"])
     except Exception:
         st.sidebar.error(L["alert_error"])
 
-
+# Filter and main interface
 country_filter = st.selectbox(f"{L['scope']}", [L["all"]] + list(set([h["country"] for h in st.session_state.hotspots])))
+
 # Applying filtering    
 filtered_hotspots = [
     h for h in st.session_state.hotspots 
@@ -168,13 +171,16 @@ if filtered_hotspots:
     avg_maternal = int(sum([h["maternal_risk"] for h in filtered_hotspots]) / total_hotspots)
 else:
     total_hotspots, avg_global, avg_maternal = 0, 0, 0
-
+    
 # Displaying metrics
+col1, col2, col3 = st.columns(3)
+
 col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
 col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
 col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
 
 st.write("---")
+
 # Control and display of the folium card
 st.subheader(f"{L['map_title']}")
 if filtered_hotspots:
@@ -188,6 +194,7 @@ if filtered_hotspots:
             popup=folium.Popup(popup_text, max_width=300),
             icon=folium.Icon(color="red" if h["maternal_risk"] > 70 else "orange", icon="info-sign")
         ).add_to(m)
+        
     st_folium(m, width=1300, height=450, key="oceanova_map")
 else:
     st.info("No active hotspots to map for this scope.")
