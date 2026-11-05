@@ -27,6 +27,7 @@ oceanova-action-mvp/
 │   ├── health_risk_calculation.py    # Clinical risk fusion matrix
 │   └── ingestion_satellite.py         # Space observation mock engine
 ├── .gitignore
+├── LICENSE                            # Legal open-source distribution framework
 ├── README.md
 ├── logo.jpeg                          # Official application badge
 ├── requirements.txt                   # Project package dependencies
@@ -65,7 +66,7 @@ oceanova-action-mvp/
 To run the full dashboard ecosystem locally, execute the following sequences within your Python environment:
 ```bash
 # 1. Clone the environment repository
-git clone https://github.com
+git clone [https://github.com](https://github.com/rosannemasugueng-dhe/oceanova-action-mvp.git)
 cd oceanova-action-mvp
 
 # 2. Install dependencies
