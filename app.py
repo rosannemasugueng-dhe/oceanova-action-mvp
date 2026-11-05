@@ -162,30 +162,24 @@ if submitted and location_input:
     try:
         search_query = f"{location_input}, {country_input}"
         location = geolocator.geocode(search_query, timeout=10)
-        
-        if submitted and location_input:
-            geolocator = Nominatim(user_agent="oceanova_analytics_agent")
-            try:
-                search_query = f"{location_input}, {country_input}"
-                location = geolocator.geocode(search_query, timeout=10)
-                if location:
-                    simulated_fdi = random.uniform(0.5, 0.9)
-                    simulated_stagnation = random.randint(50, 95)
-                    simulated_reports = random.randint(40, 85)
-                    risk_results = calculate_one_health_indices(simulated_fdi, simulated_stagnation, simulated_reports)
-            
-                    new_point = {
-                        "name": location_input, "country": country_input, "ecosystem": eco_input,
-                        "latitude": location.latitude, "longitude": location.longitude,
-                        "global_risk": risk_results["global_risk_index"], "maternal_risk": risk_results["maternal_endocrine_index"]
-                }
-                st.session_state.hotspots.append(new_point)
-                st.sidebar.success(L["alert_success"])
-                st.rerun()
-                else:
-                    st.sidebar.error(L["alert_error"])
-            except Exception:
-                st.sidebar.error(L["alert_error"])
+        if location:
+            simulated_fdi = random.uniform(0.5, 0.9)
+            simulated_stagnation = random.randint(50, 95)
+            simulated_reports = random.randint(40, 85)
+            risk_results = calculate_one_health_indices(simulated_fdi, simulated_stagnation, simulated_reports)
+
+            new_point = {
+                "name": location_input, "country": country_input, "ecosystem": eco_input,
+                "latitude": location.latitude, "longitude": location.longitude,
+                "global_risk": risk_results["global_risk_index"], "maternal_risk": risk_results["maternal_endocrine_index"]
+            }
+            st.session_state.hotspots.append(new_point)
+            st.sidebar.success(L["alert_success"])
+            st.rerun()
+        else:
+            st.sidebar.error(L["alert_error"])
+    except Exception:
+        st.sidebar.error(L["alert_error"])
 
 # Dashboard
 # Filter and main interface
@@ -201,16 +195,8 @@ if filtered_hotspots:
 else:
     total_hotspots, avg_global, avg_maternal = 0, 0, 0
 
-col1, col2, col3 = st.columns(3)
-col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
-col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
-col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
-
-st.write("---")
-    
 # Displaying metrics
 col1, col2, col3 = st.columns(3)
-
 col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
 col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
 col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
@@ -221,7 +207,7 @@ st.write("---")
 st.subheader(f"{L['map_title']}")
 if filtered_hotspots:
     # Safe centering on the first item [0] in the filtered list
-     m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]], zoom_start=5, control_scale=True)
+    m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]], zoom_start=5, control_scale=True)
     for h in filtered_hotspots:
         popup_text = f"<b>{html.escape(h['name'])}</b><br>Global Risk: {h['global_risk']}/100<br>Maternal Index: {h['maternal_risk']}/100"
         folium.Marker(
