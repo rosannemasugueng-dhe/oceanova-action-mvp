@@ -1,22 +1,28 @@
-import streamlit as st
-import folium
-from streamlit_folium import st_folium
-import json
 import os
-import pandas as pd
+import json
 import random
 import time
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
+from PIL import Image
+import streamlit as st
+
+# Configuration de la page
+try:
+    logo_img = Image.open("logo.jpeg")
+except Exception:
+    logo_img = "🌌"
+
+st.set_page_config(
+    page_title="OceaNova Action", 
+    page_icon=logo_img, 
+    layout="wide"
+)
 
 # IMPORTATION DES MODULES DE SÉCURITÉ DE TON RÉPERTOIRE SRC/
 from src.ingestion_satellite import fetch_satellite_metadata
 from src.health_risk_calculation import calculate_one_health_indices
-
-# Configuration de la page Streamlit (Calée sur le port localhost:8051)
-st.set_page_config(
-    page_title="OceaNova Action", 
-    page_icon="https://githubusercontent.com", 
-    layout="wide"
-)
 
 # --- STYLE CSS APPLIQUÉ : ACCESSIBILITÉ ET HAUT CONTRASTE ---
 st.markdown("""
@@ -61,7 +67,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- TITRE PRINCIPAL DE L'INTERFACE ---
-st.title("🌌 OceaNova Action — One Health Predictive Dashboard")
+st.title(" OceaNova Action — One Health Predictive Dashboard")
 st.markdown("### Early-Warning DeepTech Infrastructure for Riverine Microplastic Risks & Maternal Health Protection")
 st.write(f"**Founder & CEO:** Rosanne Masugue Ngangoumoun | *Millennium Fellow 2026*")
 
@@ -69,16 +75,16 @@ st.write(f"**Founder & CEO:** Rosanne Masugue Ngangoumoun | *Millennium Fellow 2
 geojson_path = "data/points_impact_africa.geojson"
 
 # --- SIDEBAR : FILTRES ET FORMULAIRE CITOYEN ---
-st.sidebar.header("🛰️ OceaNova Spatial Control")
+st.sidebar.header("OceaNova Spatial Control")
 st.sidebar.markdown("**Status:** Active AI Copilot Synced")
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("🔍 Filter Trajectories")
+st.sidebar.subheader("Filter Trajectories")
 country_filter = st.sidebar.selectbox("Filter by Country", ["All Countries", "Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
 waterbody_filter = st.sidebar.selectbox("Filter by Waterbody Type", ["All Types", "River", "Lake", "Ocean/Beach", "Stream/Ditch"])
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("👥 Citizen Science Reporting")
+st.sidebar.subheader("Citizen Science Reporting")
 st.sidebar.info("Artisanal fishers and community health workers upload localized telemetry to re-compute risks.")
 
 # Formulaire de remontée de données de terrain
@@ -88,17 +94,17 @@ with st.sidebar.form(key="citizen_report_form", clear_on_submit=True):
     new_waterbody_type = st.selectbox("Waterbody Type Classification", ["River", "Lake", "Ocean/Beach", "Stream/Ditch"])
     pollution_density = st.slider("Visual Plastic Density (Field Observation)", 0, 100, 50)
     stagnation_observed = st.checkbox("Water stagnation or drainage blockage observed?")
-    submit_button = st.form_submit_button(label="🚀 Submit Field Report & Trigger Satellite Core")
+    submit_button = st.form_submit_button(label="Submit Field Report & Trigger Satellite Core")
 
 # Traitement lors de la soumission du formulaire
 if submit_button and location_name:
     if os.path.exists(geojson_path):
-        with st.sidebar.spinner("📡 Triggering ESA Copernicus & NASA GIBS API..."):
+        with st.sidebar.spinner("Triggering ESA Copernicus & NASA GIBS API..."):
             time.sleep(1.5)
             fake_coords = [4.0, 9.0] if new_country == "Cameroon" else [-1.9, 30.0]
             sat_data = fetch_satellite_metadata(fake_coords)
 
-        with st.sidebar.spinner("🧬 Computing Dual One Health Indices..."):
+        with st.sidebar.spinner("Computing Dual One Health Indices..."):
             time.sleep(1.0)
             stagnation_score = pollution_density * 1.3 if stagnation_observed else pollution_density
             confidence_fdi = sat_data.get("plastic_signature_confidence", 0.5)
@@ -139,7 +145,7 @@ if submit_button and location_name:
         with open(geojson_path, "w") as f:
             json.dump(geojson_data, f, indent=2)
 
-        st.sidebar.success(f"🎉 Hotspot Analyzed! Global: {health_results['global_risk_index']}/100 | Maternal: {health_results['maternal_endocrine_index']}/100")
+        st.sidebar.success(f"Hotspot Analyzed! Global: {health_results['global_risk_index']}/100 | Maternal: {health_results['maternal_endocrine_index']}/100")
         st.rerun()
 
 # --- LOGIQUE DE FILTRAGE DES DONNÉES DE LA CARTE ---
@@ -172,7 +178,7 @@ if os.path.exists(geojson_path):
 
     # --- CARTOGRAPHIE INTERACTIVE FOLIUM ---
     st.markdown("---")
-    st.subheader("📍 Live Microplastic Risk Mapping (One Health Trajectory)")
+    st.subheader("Live Microplastic Risk Mapping (One Health Trajectory)")
 
     map_center = [1.0, 20.0]
     if country_filter != "All Countries" and filtered_features:
@@ -209,7 +215,7 @@ if os.path.exists(geojson_path):
             </div>
             <table style='width: 100%; font-size: 11px; border-collapse: collapse; line-height: 1.5;'>
                 <tr>
-                    <td style='padding: 3px 0; color: #555;'>🧬 Maternal Index:</td>
+                    <td style='padding: 3px 0; color: #555;'>Maternal Index:</td>
                     <td style='padding: 3px 0; font-weight: bold; color: #d9534f;'>{m_index}/100</td>
                 </tr>
                 <tr>
@@ -217,7 +223,7 @@ if os.path.exists(geojson_path):
                     <td style='padding: 3px 0; font-weight: bold; color: #CC0000;'>{props.get('maternal_health_hazard', 'WARNING')}</td>
                 </tr>
                 <tr>
-                    <td style='padding: 3px 0; color: #555;'>👥 Community Network:</td>
+                    <td style='padding: 3px 0; color: #555;'> Community Network:</td>
                     <td style='padding: 3px 0; font-weight: bold; color: #2e7d32; font-size:10px;'>{props.get('community_status', 'Active')}</td>
                 </tr>
             </table>
@@ -234,7 +240,7 @@ if os.path.exists(geojson_path):
 
     # --- MODULE FINANCIER D'IMPACT (TEXTILE-TO-CASH & SAAS DECK ALIGNMENT) ---
     st.markdown("---")
-    st.subheader("🧵 Enterprise Business Architecture (Textile-to-Cash Validation)")
+    st.subheader("Enterprise Business Architecture (Textile-to-Cash Validation)")
     st.write("Real-time telemetry monetization loop demonstrating financial scalability to grant boards and impact funds.")
     col_b1, col_b2 = st.columns(2)
     with col_b1:
@@ -243,20 +249,20 @@ if os.path.exists(geojson_path):
         premium_price_ton = 1200 * 1.30
         gross_revenue = tons_collected * premium_price_ton
         payout_mothers = gross_revenue * 0.40
-        st.info(f"📈 Projected Premium Gross Revenue: ${gross_revenue:,.2f}")
-        st.success(f"💰 SDG 8 Payouts Distributed to Vulnerable Women & Fishers (40%): ${payout_mothers:,.2f}")
+        st.info(f"Projected Premium Gross Revenue: ${gross_revenue:,.2f}")
+        st.success(f"SDG 8 Payouts Distributed to Vulnerable Women & Fishers (40%): ${payout_mothers:,.2f}")
     with col_b2:
         st.markdown("#### Secondary Engine: One Health SaaS Licensing")
         active_licenses = st.number_input("Number of Subscribed Ministries of Health / Public NGOs:", min_value=1, max_value=50, value=4)
         annual_license_cost = 18000
         total_saas_arr = active_licenses * annual_license_cost
         health_savings = total_saas_arr * 100
-        st.info(f"💻 Software Annual Recurring Revenue (ARR): ${total_saas_arr:,.2f}")
-        st.success(f"🛡️ Estimated Prevented Public Healthcare Crisis Costs (100x): ${health_savings:,.2f}")
+        st.info(f"Software Annual Recurring Revenue (ARR): ${total_saas_arr:,.2f}")
+        st.success(f"Estimated Prevented Public Healthcare Crisis Costs (100x): ${health_savings:,.2f}")
 
     # --- GRAPHISME DE L'ÉVOLUTION TEMPORELLE ---
     st.markdown("---")
-    st.subheader("📊 Temporal Evolution of Ingested Hydro-Anomalies (2024 - 2026)")
+    st.subheader("Temporal Evolution of Ingested Hydro-Anomalies (2024 - 2026)")
     dates = pd.date_range(start="2024-01-01", end="2026-10-01", freq="ME")
     random.seed(42)
     wouri_data = [50 + (i * 1.3) + random.uniform(-6, 6) for i in range(len(dates))]
