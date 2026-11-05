@@ -45,7 +45,7 @@ def fetch_satellite_metadata(coordinates):
         }
         
     except Exception as e:
-        # Gestion des erreurs de connexion (ex: pas d'Internet ou Token expiré)
+        # Handling connection errors (e.g., no Internet or expired token)
         print(f"[WARNING] API connection timed out. Falling back to local diagnostic pipeline. Error: {e}")
         return {
             "status": "Fallback",
@@ -58,7 +58,7 @@ def fetch_satellite_metadata(coordinates):
 
 if __name__ == "__main__":
    # Quick unit test to verify that your module works independently
-    test_coords = [4.0244, 9.6874] # Coordonnées du Fleuve Wouri
+    test_coords = [4.0244, 9.6874]
     result = fetch_satellite_metadata(test_coords)
     print("\n--- Copernicus API Pipeline Test Result ---")
     print(json.dumps(result, indent=2))
