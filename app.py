@@ -2,10 +2,12 @@ import os
 import json
 import random
 import time
+import html
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from PIL import Image
+from geopy.geocoders import Nominatim
 import streamlit as st
 
 # Page configuration 
@@ -45,193 +47,156 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Main interface title
-st.title(" OceaNova Action — One Health Predictive Dashboard")
-st.markdown("### Early-Warning DeepTech Infrastructure for Riverine Microplastic Risks & Maternal Health Protection")
-st.write(f"**Founder & CEO:** Rosanne Masugue Ngangoumoun | *Millennium Fellow 2026*")
 
-# Path to my local GeoJSON file
-geojson_path = "data/points_impact_africa.geojson"
+# Translation French/English
+LANG_DICT = {
+    "FR": {
+        "title": "OceaNova Action — One Health Predictive Dashboard",
+        "subtitle": "Infrastructure DeepTech d'Alerte Précoce pour les Risques de Microplastiques et la Protection Maternelle",
+        "lang_select": "Choisir la langue / Select Language",
+        "monitored_hotspots": "Hotspots Surveillés",
+        "mean_global": "Indice de Risque Global Moyen",
+        "mean_maternal": "Indice Endocrinien Maternel Moyen",
+        "scope": "Zone d'analyse",
+        "toxicity_level": "Niveau de toxicité de l'écosystème",
+        "hazard_level": "Niveau de danger reproductif",
+        "sidebar_title": "Pipeline de Science Citoyenne",
+        "input_location": "Nom du cours d'eau / Repère local (ex: Marché de Mouanko)",
+        "input_country": "Pays",
+        "input_eco": "Type d'Écosystème",
+        "btn_add": "Localiser et Analyser",
+        "btn_delete": "Supprimer le dernier point",
+        "alert_success": "Lieu localisé avec succès par l'IA !",
+        "alert_error": "Impossible de localiser ce lieu. Veuillez préciser (ex: Mouanko, Cameroun)",
+        "map_title": "Cartographie en Direct des Risques Microplastiques",
+        "chart_title": "Évolution Temporelle de l'Accumulation Toxique",
+        "all": "Tous les pays"
+    },
+    "EN": {
+        "title": "OceaNova Action — One Health Predictive Dashboard",
+        "subtitle": "Early-Warning DeepTech Infrastructure for Riverine Microplastic Risks & Maternal Health Protection",
+        "lang_select": "Choisir la langue / Select Language",
+        "monitored_hotspots": "Monitored Hotspots",
+        "mean_global": "Mean Global Risk Index",
+        "mean_maternal": "Mean Maternal Endocrine Index",
+        "scope": "Scope",
+        "toxicity_level": "Ecosystem Toxicity Level",
+        "hazard_level": "Reproductive Hazard Level",
+        "sidebar_title": "Citizen Science Input Pipeline",
+        "input_location": "River Name / Local Landmark (e.g., Mouanko Market)",
+        "input_country": "Country",
+        "input_eco": "Ecosystem Type",
+        "btn_add": "Locate & Analyze",
+        "btn_delete": "Delete Last Hotspot",
+        "alert_success": "Location successfully mapped by AI!",
+        "alert_error": "Location not found. Please be more specific (e.g., Mouanko, Cameroon)",
+        "map_title": "Live Microplastic Risk Mapping",
+        "chart_title": "Temporal Evolution of Toxic Bioaccumulation",
+        "all": "All Countries"
+    }
+}
 
-# Sidebar: Filters and Citizen Form
-st.sidebar.header("OceaNova Spatial Control")
-st.sidebar.markdown("**Status:** Active AI Copilot Synced")
-st.sidebar.markdown("---")
-st.sidebar.subheader("Filter Trajectories")
-country_filter = st.sidebar.selectbox("Filter by Country", ["All Countries", "Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
-waterbody_filter = st.sidebar.selectbox("Filter by Waterbody Type", ["All Types", "River", "Lake", "Ocean/Beach", "Stream/Ditch"])
-st.sidebar.markdown("---")
-st.sidebar.subheader("Citizen Science Reporting")
-st.sidebar.info("Artisanal fishers and community health workers upload localized telemetry to re-compute risks.")
+# Language selection at the very top of the sidebar
+lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
+L = LANG_DICT["FR"] if "Français" in lang_choice else LANG_DICT["EN"]
+st.title(L["title"])
+st.caption(f"{L['subtitle']} | Founder & CEO: Rosanne Masugue Ngangoumoun")
 
-# Field data submission form
-with st.sidebar.form(key="citizen_report_form", clear_on_submit=True):
-    location_name = st.text_input("Waterway / Location Name", placeholder="e.g., Nyabarongo River, Kigali")
-    new_country = st.selectbox("Country Location", ["Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
-    new_waterbody_type = st.selectbox("Waterbody Type Classification", ["River", "Lake", "Ocean/Beach", "Stream/Ditch"])
-    pollution_density = st.slider("Visual Plastic Density (Field Observation)", 0, 100, 50)
-    stagnation_observed = st.checkbox("Water stagnation or drainage blockage observed?")
-    submit_button = st.form_submit_button(label="Submit Field Report & Trigger Satellite Core")
+# Initialization of session state memory
+if "initialized" not in st.session_state:
+    st.session_state.initialized = True
+    try:
+        with open("data/points_impact_africa.geojson", "r", encoding="utf-8") as f:
+            geo_data = json.load(f)
+        st.session_state.hotspots = [
+            {
+                "name": ft["properties"].get("location_name", ft["properties"].get("name", "Unknown River")),
+                "country": ft["properties"].get("country", "Unknown"),
+                "ecosystem": ft["properties"].get("waterbody_type", ft["properties"].get("ecosystem", "River")),
+                "latitude": ft["geometry"]["coordinates"][1],
+                "longitude": ft["geometry"]["coordinates"][0],
+                "global_risk": ft["properties"].get("global_risk_index", 50),
+                "maternal_risk": ft["properties"].get("maternal_endocrine_index", 50),
+            }
+            for ft in geo_data["features"]
+        ]
+    except Exception:
+        st.session_state.hotspots = []
 
-# Processing upon form submission
-if submit_button and location_name:
-    if os.path.exists(geojson_path):
-        with st.sidebar.spinner("Triggering ESA Copernicus & NASA GIBS API..."):
-            time.sleep(1.5)
-            fake_coords = [4.0, 9.0] if new_country == "Cameroon" else [-1.9, 30.0]
-            sat_data = fetch_satellite_metadata(fake_coords)
-        with st.sidebar.spinner("Computing Dual One Health Indices..."):
-            time.sleep(1.0)
-            stagnation_score = pollution_density * 1.3 if stagnation_observed else pollution_density
-            confidence_fdi = sat_data.get("plastic_signature_confidence", 0.5)
-            health_results = calculate_one_health_indices(
-                satellite_fdi=confidence_fdi,
-                stagnation_index=stagnation_score,
-                citizen_reports=pollution_density
+
+st.sidebar.header(L["sidebar_title"])
+with st.sidebar.form("citizen_input_form"):
+    location_input = st.text_input(L["input_location"], value="")
+    country_input = st.selectbox(L["input_country"],
+        ["Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
+    eco_input = st.selectbox(L["input_eco"], ["River", "Lake", "Estuary"])
+    submitted = st.form_submit_button(L["btn_add"])
+if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 0:
+    st.session_state.hotspots.pop()
+    st.rerun()
+if submitted and location_input:
+    geolocator = Nominatim(user_agent="oceanova_analytics_agent")
+    try:
+        location = geolocator.geocode(f"{location_input}, {country_input}", timeout=10)
+        if location:
+            risk = calculate_one_health_indices(
+                random.uniform(0.4, 0.9), random.randint(40, 95), random.randint(30, 85)
             )
-        with open(geojson_path, "r") as f:
-            geojson_data = json.load(f)
-        base_coords = {
-            "Cameroon": [4.02, 9.68], "Rwanda": [-1.97, 30.04], "Nigeria": [6.52, 3.37],
-            "Ghana": [5.55, -0.2], "DR Congo": [-4.32, 15.31], "Kenya": [-1.28, 36.82]
-        }
-        base_lat = base_coords[new_country][0]
-        base_lon = base_coords[new_country][1]
-        lat = base_lat + random.uniform(-0.2, 0.2)
-        lon = base_lon + random.uniform(-0.2, 0.2)
-        new_feature = {
-            "type": "Feature",
-            "properties": {
-                "location_name": location_name,
-                "country": new_country,
-                "waterbody_type": new_waterbody_type,
-                "global_risk_index": health_results["global_risk_index"],
-                "maternal_endocrine_index": health_results["maternal_endocrine_index"],
-                "maternal_health_hazard": health_results["hazard_level"],
-                "community_status": f"Satellite Verified ({sat_data.get('sensor_id', 'Sentinel-2')}) — Textile-to-Cash Active"
-            },
-            "geometry": { "type": "Point", "coordinates": [lon, lat] }
-        }
-        geojson_data["features"].append(new_feature)
-        with open(geojson_path, "w") as f:
-            json.dump(geojson_data, f, indent=2)
-        st.sidebar.success(f"Hotspot Analyzed! Global: {health_results['global_risk_index']}/100 | Maternal: {health_results['maternal_endocrine_index']}/100")
-        st.rerun()
-# Card Data filtering logic
-if os.path.exists(geojson_path):
-    with open(geojson_path, "r") as f:
-        raw_data = json.load(f)
-    filtered_features = []
-    for feature in raw_data["features"]:
-        props = feature["properties"]
-        match_country = (country_filter == "All Countries") or (props.get("country") == country_filter)
-        match_type = (waterbody_filter == "All Types") or (props.get("waterbody_type") == waterbody_filter)
-        if match_country and match_type:
-            filtered_features.append(feature)
+            st.session_state.hotspots.append({
+                "name": location_input, "country": country_input, "ecosystem": eco_input,
+                "latitude": location.latitude, "longitude": location.longitude,
+                "global_risk": risk["global_risk_index"],
+                "maternal_risk": risk["maternal_endocrine_index"],
+            })
+            st.rerun()
+        else:
+            st.sidebar.error(L["alert_error"])
+    except Exception:
+        st.sidebar.error(L["alert_error"])
 
-    # Dual Dynamic metrics section
-    st.markdown("---")
-    col_m1, col_m2, col_m3 = st.columns(3)
-    col_m1.metric("Monitored Hotspots", len(filtered_features), f"Scope: {country_filter}")
-    if filtered_features:
-        avg_global = int(pd.Series([f["properties"].get("global_risk_index", 50) for f in filtered_features]).mean())
-        avg_maternal = int(pd.Series([f["properties"].get("maternal_endocrine_index", 50) for f in filtered_features]).mean())
-        col_m2.metric("Mean Global Risk Index", f"{avg_global} / 100", "Ecosystem Toxicity Level")
-        col_m3.metric("Mean Maternal Endocrine Index", f"{avg_maternal} / 100", "Reproductive Hazard Level", delta_color="inverse")
-    else:
-        col_m2.metric("Mean Global Risk Index", "N/A")
-        col_m3.metric("Mean Maternal Endocrine Index", "N/A")
 
-    # Folium Interactive Mapping
-    st.markdown("---")
-    st.subheader("Live Microplastic Risk Mapping (One Health Trajectory)")
-    map_center = [1.0, 20.0]
-    if country_filter != "All Countries" and filtered_features:
-        first_coords = filtered_features[0]["geometry"]["coordinates"]
-        map_center = [first_coords[1], first_coords[0]]
-    m = folium.Map(location=map_center, zoom_start=4 if country_filter == "All Countries" else 7, tiles=None)
-    folium.TileLayer(tiles="OpenStreetMap", name="Standard Map", overlay=False).add_to(m)
-    folium.TileLayer(tiles="https://eox.at{z}/{y}/{x}.jpg",
-                     attr='&copy; Sentinel-2 Cloudless via EOX', name="ESA Sentinel-2 Analytics View", overlay=False).add_to(m)
-
-    # Loop for generating markers on the map
-    for feature in filtered_features:
-        coords = feature["geometry"]["coordinates"]
-        props = feature["properties"]
-        lat, lon = coords[1], coords[0]
-        g_index = props.get("global_risk_index", 50)
-        m_index = props.get("maternal_endocrine_index", 50)
-        color = "red" if g_index > 75 else "orange" if g_index > 50 else "blue"
-        badge_color = "#d9534f" if g_index > 75 else "#f0ad4e" if g_index > 50 else "#0275d8"
-        water_type = props.get("waterbody_type", "River")
-        icon_name = "tint" if water_type == "Ocean/Beach" else "cloud" if water_type == "Lake" else "leaf" if water_type == "Stream/Ditch" else "exclamation-sign"
-        popup_text = f"""
-        <div style='font-family: "Segoe UI", Arial, sans-serif; width: 260px; padding: 5px; color: #333333;'>
-            <h4 style='margin: 0 0 4px 0; color: #0B0F19; font-size: 14px;'>{props['location_name']}</h4>
-            <div style='margin-bottom: 8px;'>
-                <span style='background-color: {badge_color}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;'>
-                    {water_type} — Global Risk: {g_index}/100
-                </span>
-            </div>
-            <table style='width: 100%; font-size: 11px; border-collapse: collapse; line-height: 1.5;'>
-                <tr>
-                    <td style='padding: 3px 0; color: #555;'>Maternal Index:</td>
-                    <td style='padding: 3px 0; font-weight: bold; color: #d9534f;'>{m_index}/100</td>
-                </tr>
-                <tr>
-                    <td style='padding: 3px 0; color: #555;'>⚠️ Clinical Danger:</td>
-                    <td style='padding: 3px 0; font-weight: bold; color: #CC0000;'>{props.get('maternal_health_hazard', 'WARNING')}</td>
-                </tr>
-                <tr>
-                    <td style='padding: 3px 0; color: #555;'> Community Network:</td>
-                    <td style='padding: 3px 0; font-weight: bold; color: #2e7d32; font-size:10px;'>{props.get('community_status', 'Active')}</td>
-                </tr>
-            </table>
-        </div>
-        """
-        folium.Marker(
-            location=[lat, lon],
-            popup=folium.Popup(popup_text, max_width=290),
-            icon=folium.Icon(color=color, icon=icon_name)
-        ).add_to(m)
-
-    folium.LayerControl(position="topright", collapsed=False).add_to(m)
-    st_folium(m, width=1300, height=450)
-
-    # Impact Financial Module ( Textile-to-Cash & SAAS Desk Alignment)
-    st.markdown("---")
-    st.subheader("Enterprise Business Architecture (Textile-to-Cash Validation)")
-    st.write("Real-time telemetry monetization loop demonstrating financial scalability to grant boards and impact funds.")
-    col_b1, col_b2 = st.columns(2)
-    with col_b1:
-        st.markdown("#### Primary Engine: B2B Sustainable Upcycling")
-        tons_collected = st.slider("Volume of Extracted & GPS-Traced Plastic (Tons):", 1, 200, 45)
-        premium_price_ton = 1200 * 1.30
-        gross_revenue = tons_collected * premium_price_ton
-        payout_mothers = gross_revenue * 0.40
-        st.info(f"Projected Premium Gross Revenue: ${gross_revenue:,.2f}")
-        st.success(f"SDG 8 Payouts Distributed to Vulnerable Women & Fishers (40%): ${payout_mothers:,.2f}")
-    with col_b2:
-        st.markdown("#### Secondary Engine: One Health SaaS Licensing")
-        active_licenses = st.number_input("Number of Subscribed Ministries of Health / Public NGOs:", min_value=1, max_value=50, value=4)
-        annual_license_cost = 18000
-        total_saas_arr = active_licenses * annual_license_cost
-        health_savings = total_saas_arr * 100
-        st.info(f"Software Annual Recurring Revenue (ARR): ${total_saas_arr:,.2f}")
-        st.success(f"Estimated Prevented Public Healthcare Crisis Costs (100x): ${health_savings:,.2f}")
-
-    # Visualization of Temporal Evolution
-    st.markdown("---")
-    st.subheader("Temporal Evolution of Ingested Hydro-Anomalies (2024 - 2026)")
-    dates = pd.date_range(start="2024-01-01", end="2026-10-01", freq="ME")
-    random.seed(42)
-    wouri_data = [50 + (i * 1.3) + random.uniform(-6, 6) for i in range(len(dates))]
-    nyabarongo_data = [35 + (i * 0.8) + random.uniform(-4, 4) for i in range(len(dates))]
-    chart_data = pd.DataFrame({"Month": dates, "Sanaga/Wouri River Basin (Cameroon)": wouri_data, "Nyabarongo River Basin (Rwanda)": nyabarongo_data}).set_index("Month")
-    st.line_chart(chart_data, height=300)
-    st.caption("FDI Cloud-Corrected Trends derived via Automated Sentinel-2 / Landsat-8 Geo-Queries.")
+    country_filter = st.selectbox(
+    f"{L['scope']}",
+    [L["all"]] + sorted({h["country"] for h in st.session_state.hotspots})
+    )
     
-    st.markdown("---")
-    st.caption("© 2026 OceaNova Action Inc. All rights reserved. Protected under OceaNova Proprietary and Non-Commercial License.")
+filtered_hotspots = [h for h in st.session_state.hotspots
+                     if country_filter == L["all"] or h["country"] == country_filter]
+if filtered_hotspots:
+    n = len(filtered_hotspots)
+    avg_global = int(sum(h["global_risk"] for h in filtered_hotspots) / n)
+    avg_maternal = int(sum(h["maternal_risk"] for h in filtered_hotspots) / n)
 else:
-    st.error(f"GeoJSON data file not found at {geojson_path}. Please verify your repository architecture layout.")
+    n, avg_global, avg_maternal = 0, 0, 0
+col1, col2, col3 = st.columns(3)
+col1.metric(L["monitored_hotspots"], n, delta=f"{L['scope']}: {country_filter}")
+col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
+col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
+
+st.write("---")
+st.subheader(f"{L['map_title']}")
+if filtered_hotspots:
+    m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]],
+                   zoom_start=5, control_scale=True)
+    for h in filtered_hotspots:
+        popup_text = (f"<b>{html.escape(h['name'])}</b><br>Global Risk: {h['global_risk']}/100"
+                      f"<br>Maternal Index: {h['maternal_risk']}/100")
+        folium.Marker(
+            location=[h["latitude"], h["longitude"]],
+            popup=folium.Popup(popup_text, max_width=300),
+            icon=folium.Icon(color="red" if h["maternal_risk"] > 70 else "orange", icon="info-sign"),
+        ).add_to(m)
+    st_folium(m, width=1300, height=450, key="oceanova_map")
+else:
+    st.info("No active hotspots to map for this scope.")
+st.write("---")
+st.subheader(f"{L['chart_title']}")
+if filtered_hotspots:
+    chart_data = pd.DataFrame({
+        "Timeline": ["2024", "2025", "Nov 2026"],
+        "Global Risk Trend": [avg_global * 0.7, avg_global * 0.85, avg_global],
+        "Maternal Endocrine Trend": [avg_maternal * 0.65, avg_maternal * 0.8, avg_maternal],
+    }).set_index("Timeline")
+    st.line_chart(chart_data)
+else:
+    st.info("No temporal data available.")
