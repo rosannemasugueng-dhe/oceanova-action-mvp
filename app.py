@@ -95,12 +95,12 @@ LANG_DICT = {
         "all": "All Countries"
     }
 }
-
 # Language selection at the very top of the sidebar
 lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
 L = LANG_DICT["FR"] if "Français" in lang_choice else LANG_DICT["EN"]
 st.title(L["title"])
-st.caption(f"{L['subtitle']} | Founder & CEO: Rosanne Masugue Ngangoumoun")
+st.markdown(f"**{L['subtitle']}** | *Founder & CEO: Rosanne Masugue Ngangoumoun | Millennium Fellow 2026*")
+
 
 # Initialization of session state memory
 if "initialized" not in st.session_state:
@@ -116,8 +116,9 @@ st.sidebar.header(L["sidebar_title"])
 
 with st.sidebar.form("citizen_input_form"):
     location_input = st.text_input(L["input_location"], value="")
-    country_input = st.selectbox(L["input_country"], ["Cameroun", "Rwanda", "Nigeria", "RDC"])
-    eco_input = st.selectbox(L["input_eco"], ["River", "Lake", "Estuary"])
+    country_input = st.selectbox(L["input_country"], ["Cameroun", "Rwanda", "Nigeria", "RDC", "Burundi", "Kenya", "Ghana", "Chad", "Gabon"])
+    eco_input = st.selectbox(L["input_eco"], ["River", "Lake", "Estuary", "Oceans and Seas", "Mangrove Swamps", "Wetlands", "Coral Reefs"])
+    
     submitted = st.form_submit_button(L["btn_add"])
     
 # Delete button outside the form for immediate action    
