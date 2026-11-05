@@ -50,22 +50,21 @@ st.markdown("""
 
 
 # Translation French/English
-LANG_DICT = {
     "FR": {
-        "title": "OceaNova Action — One Health Predictive Dashboard",
-        "subtitle": "Early-Warning DeepTech Infrastructure for Riverine Microplastic Risks & Maternal Health Protection",
-        "ceo_line": "Founder & CEO: Rosanne Masugue Ngangoumoun | Millennium Fellow 2026",
+        "title": "OceaNova Action — Tableau de Bord Prédictif One Health",
+        "subtitle": "Infrastructure DeepTech d'alerte précoce pour les risques de microplastiques fluviaux et la protection de la santé maternelle",
+        "ceo_line": "Fondatrice & PDG : Rosanne Masugue Ngangoumoun | Millennium Fellow 2026",
         "lang_select": "Choisir la langue / Select Language",
-        "sidebar_header": "OceaNova Spatial Control",
-        "sidebar_status": "Status: Active AI copilot Synced",
+        "sidebar_header": "OceaNova — Contrôle Spatial",
+        "sidebar_status": "Statut : copilote IA actif et synchronisé",
         "monitored_hotspots": "Hotspots Surveillés",
-        "mean_global": "Mean Global Risk Index",
-        "mean_maternal": "Mean Maternal Endocrine Index",
-        "scope": "Scope",
-        "toxicity_level": "Ecosystem Toxicity Level",
-        "hazard_level": "Reproductive Hazard Level",
-        "sidebar_title": "Citizen Science Input Pipeline",
-        "sidebar_desc": "Artisanal fishers and community health workers upload localized telemetry to re-compute risks.",
+        "mean_global": "Indice de Risque Global Moyen",
+        "mean_maternal": "Indice Endocrinien Maternel Moyen",
+        "scope": "Zone d'analyse",
+        "toxicity_level": "Niveau de toxicité de l'écosystème",
+        "hazard_level": "Niveau de danger reproductif",
+        "sidebar_title": "Pipeline de Science Citoyenne",
+        "sidebar_desc": "Les pêcheurs artisanaux et les agents de santé communautaires envoient des données de terrain pour recalculer les risques.",
         "input_location": "Nom du cours d'eau / Repère local (ex: Marché de Mouanko)",
         "input_country": "Pays",
         "input_eco": "Type d'Écosystème",
@@ -73,16 +72,24 @@ LANG_DICT = {
         "btn_delete": "Supprimer le dernier point",
         "alert_success": "Lieu localisé avec succès par l'IA !",
         "alert_error": "Impossible de localiser ce lieu. Veuillez préciser (ex: Mouanko, Cameroun)",
-        "map_title": "Live Microplastic Risk Mapping (One Health Trajectory)",
-        "chart_title": "Temporal Evolution of Toxic Bioaccumulation",
-        "all": "All Countries",
-        "fin_title": "Enterprise Business Architecture (Textile-to-Cash Validation)",
-        "fin_subtitle": "Real-time econometric scaling mapping financial autonomy vs geospatial threat mitigation.",
-        "fin_col1": "Primary Engine: B2B Sustainable Upcycling",
-        "fin_col2": "Secondary Engine: One Health SaaS Licensing",
-        "slider_label": "Community-led Plastic Ingestion Volume (Metric Tons / Month)",
-        "revenue_label": "Projected Enterprise Gross Revenue",
-        "impact_label": "Direct Impact Allocation (SDG 8 Living Wages)"
+        "map_title": "Cartographie en Direct des Risques Microplastiques (Trajectoire One Health)",
+        "chart_title": "Évolution Temporelle de la Bioaccumulation Toxique",
+        "all": "Tous les pays",
+        "fin_title": "Architecture Économique de l'Entreprise (Validation Textile-to-Cash)",
+        "fin_subtitle": "Modèle économétrique en temps réel : autonomie financière face à la réduction des menaces géospatiales.",
+        "fin_col1": "Moteur Principal : Valorisation Durable B2B",
+        "fin_col2": "Moteur Secondaire : Licences SaaS One Health",
+        "slider_label": "Volume de plastique collecté par les communautés (tonnes / mois)",
+        "revenue_label": "Chiffre d'affaires brut projeté",
+        "impact_label": "Allocation d'impact direct (ODD 8 : salaires décents)",
+        "saas_active": "Licences SaaS actives",
+        "saas_units": "Districts / ONG",
+        "saas_revenue": "Revenus SaaS récurrents",
+        "per_month": "USD / mois",
+        "no_hotspots": "Aucun hotspot actif à afficher pour cette zone.",
+        "no_temporal": "Aucune donnée temporelle disponible.",
+        "global_trend": "Tendance du risque global",
+        "maternal_trend": "Tendance endocrinienne maternelle"
     },
     "EN": {
         "title": "OceaNova Action — One Health Predictive Dashboard",
@@ -116,6 +123,14 @@ LANG_DICT = {
         "slider_label": "Community-led Plastic Ingestion Volume (Metric Tons / Month)",
         "revenue_label": "Projected Enterprise Gross Revenue",
         "impact_label": "Direct Impact Allocation (SDG 8 Living Wages)"
+        "saas_active": "Active SaaS Licenses",
+        "saas_units": "Districts / NGOs",
+        "saas_revenue": "Recurring SaaS Revenue",
+        "per_month": "USD / month",
+        "no_hotspots": "No active hotspots to map for this scope.",
+        "no_temporal": "No temporal data available.",
+        "global_trend": "Global Risk Trend",
+        "maternal_trend": "Maternal Endocrine Trend"
     }
 }
 # Language selection at the very top of the sidebar
@@ -197,7 +212,7 @@ else:
 
 # Displaying metrics
 col1, col2, col3 = st.columns(3)
-col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
+col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"{L['scope']}: {country_filter}")
 col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
 col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
 
@@ -216,7 +231,7 @@ if filtered_hotspots:
         ).add_to(m)
     st_folium(m, width=1300, height=450, key="oceanova_map")
 else:
-    st.info("No active hotspots to map for this scope.")
+    st.info(L["no_hotspots"])
 st.write("---")
 
 # Integration of the financial architecture between the map and the graph.
@@ -229,12 +244,12 @@ saas_licences = total_hotspots * 1200
 f_col1, f_col2 = st.columns(2)
 with f_col1:
     st.markdown(f"##### {L['fin_col1']}")
-    st.info(f"{L['revenue_label']} : ${gross_revenue:,} USD / month")
-    st.success(f"{L['impact_label']} : ${living_wages:,} USD / month")
+    st.info(f"{L['revenue_label']} : ${gross_revenue:,} {L['per_month']}")
+    st.success(f"{L['impact_label']} : ${living_wages:,} {L['per_month']}")
 with f_col2:
     st.markdown(f"##### {L['fin_col2']}")
-    st.info(f"Active SaaS Licenses: {total_hotspots} Districts / NGOs")
-    st.success(f"Recurring SaaS Revenue: ${saas_licences:,} USD / month")
+    st.info(f"{L['saas_active']} : {total_hotspots} {L['saas_units']}")
+    st.success(f"{L['saas_revenue']} : ${saas_licences:,} {L['per_month']}")
 st.write("---")
 
 # Summary time-series chart
@@ -242,9 +257,9 @@ st.subheader(f"{L['chart_title']}")
 if filtered_hotspots:
     chart_data = pd.DataFrame({
         "Timeline": ["2024", "2025", "Nov 2026"],
-        "Global Risk Trend": [avg_global * 0.7, avg_global * 0.85, avg_global],
-        "Maternal Endocrine Trend": [avg_maternal * 0.65, avg_maternal * 0.8, avg_maternal],
+        L["global_trend"]: [avg_global * 0.7, avg_global * 0.85, avg_global],
+        L["maternal_trend"]: [avg_maternal * 0.65, avg_maternal * 0.8, avg_maternal],
     }).set_index("Timeline")
     st.line_chart(chart_data)
 else:
-    st.info("No temporal data available.")
+    st.info(L["no_temporal"])
