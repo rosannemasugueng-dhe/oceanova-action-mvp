@@ -155,41 +155,46 @@ if submitted and location_input:
         st.sidebar.error(L["alert_error"])
 
 
-    country_filter = st.selectbox(
-    f"{L['scope']}",
-    [L["all"]] + sorted({h["country"] for h in st.session_state.hotspots})
-    )
-    
-filtered_hotspots = [h for h in st.session_state.hotspots
-                     if country_filter == L["all"] or h["country"] == country_filter]
+country_filter = st.selectbox(f"{L['scope']}", [L["all"]] + list(set([h["country"] for h in st.session_state.hotspots])))
+# Applying filtering    
+filtered_hotspots = [
+    h for h in st.session_state.hotspots 
+    if country_filter == L["all"] or h["country"] == country_filter
+]
+# Dynamic calculation of metrics
 if filtered_hotspots:
-    n = len(filtered_hotspots)
-    avg_global = int(sum(h["global_risk"] for h in filtered_hotspots) / n)
-    avg_maternal = int(sum(h["maternal_risk"] for h in filtered_hotspots) / n)
+    total_hotspots = len(filtered_hotspots)
+    avg_global = int(sum([h["global_risk"] for h in filtered_hotspots]) / total_hotspots)
+    avg_maternal = int(sum([h["maternal_risk"] for h in filtered_hotspots]) / total_hotspots)
 else:
-    n, avg_global, avg_maternal = 0, 0, 0
-col1, col2, col3 = st.columns(3)
-col1.metric(L["monitored_hotspots"], n, delta=f"{L['scope']}: {country_filter}")
+    total_hotspots, avg_global, avg_maternal = 0, 0, 0col1, col2, col3 = st.columns(3)
+
+# Displaying metrics
+col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
 col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
 col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
 
 st.write("---")
+# Control and display of the folium card
 st.subheader(f"{L['map_title']}")
 if filtered_hotspots:
-    m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]],
-                   zoom_start=5, control_scale=True)
+    # Safe centering on the first item [0] in the filtered list
+    m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]], zoom_start=5, control_scale=True)
+    
     for h in filtered_hotspots:
-        popup_text = (f"<b>{html.escape(h['name'])}</b><br>Global Risk: {h['global_risk']}/100"
-                      f"<br>Maternal Index: {h['maternal_risk']}/100")
+        popup_text = f"<b>{h['name']}</b><br>Global Risk: {h['global_risk']}/100<br>Maternal Index: {h['maternal_risk']}/100"
         folium.Marker(
             location=[h["latitude"], h["longitude"]],
             popup=folium.Popup(popup_text, max_width=300),
-            icon=folium.Icon(color="red" if h["maternal_risk"] > 70 else "orange", icon="info-sign"),
+            icon=folium.Icon(color="red" if h["maternal_risk"] > 70 else "orange", icon="info-sign")
         ).add_to(m)
     st_folium(m, width=1300, height=450, key="oceanova_map")
 else:
     st.info("No active hotspots to map for this scope.")
+
 st.write("---")
+
+# Summary time-series chart
 st.subheader(f"{L['chart_title']}")
 if filtered_hotspots:
     chart_data = pd.DataFrame({
