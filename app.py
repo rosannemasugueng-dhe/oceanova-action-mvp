@@ -167,7 +167,7 @@ if filtered_hotspots:
     avg_global = int(sum([h["global_risk"] for h in filtered_hotspots]) / total_hotspots)
     avg_maternal = int(sum([h["maternal_risk"] for h in filtered_hotspots]) / total_hotspots)
 else:
-    total_hotspots, avg_global, avg_maternal = 0, 0, 0col1, col2, col3 = st.columns(3)
+    total_hotspots, avg_global, avg_maternal = 0, 0, 0
 
 # Displaying metrics
 col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"Scope: {country_filter}")
