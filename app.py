@@ -12,7 +12,7 @@ from src.ingestion_satellite import fetch_satellite_metadata
 from src.health_risk_calculation import calculate_one_health_indices
 
 # Configuration de la page Streamlit (Calée sur le port localhost:8051)
-st.set_page_config(
+sst.set_page_config(
     page_title="OceaNova Action", 
     page_icon="https://githubusercontent.com", 
     layout="wide"
