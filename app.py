@@ -8,86 +8,63 @@ from streamlit_folium import st_folium
 from PIL import Image
 import streamlit as st
 
-# Configuration de la page
+# Page configuration 
 try:
     logo_img = Image.open("logo.jpeg")
 except Exception:
     logo_img = "🌌"
-
 st.set_page_config(
     page_title="OceaNova Action", 
     page_icon=logo_img, 
     layout="wide"
 )
 
-# IMPORTATION DES MODULES DE SÉCURITÉ DE TON RÉPERTOIRE SRC/
+# Importing security modules from your src/ directory
 from src.ingestion_satellite import fetch_satellite_metadata
 from src.health_risk_calculation import calculate_one_health_indices
 
-# --- STYLE CSS APPLIQUÉ : ACCESSIBILITÉ ET HAUT CONTRASTE ---
+# Css style applied
 st.markdown("""
     <style>
-        /* Forcer des titres sombres et très visibles en mode clair */
         h1, h2, h3 { 
-            color: #0A192F !important; 
             font-family: 'Segoe UI', sans-serif;
             font-weight: 700;
         }
-        
-        /* Ajuster les descriptions de sous-titres */
-        .stMarkdown p {
-            color: #1E293B !important;
-            font-size: 14px;
-        }
-        
-        /* Embellissement des blocs de métriques avec bordure émeraude claire */
         div[data-testid="stMetric"] { 
-            background-color: #F8FAFC !important; 
+            background-color: rgba(128, 128, 128, 0.08) !important; 
             padding: 15px; 
             border-radius: 10px; 
-            border: 1px solid #E2E8F0;
+            border: 1px solid rgba(128, 128, 128, 0.2);
             border-left: 5px solid #00B4D8 !important; 
         }
-        
-        /* Forcer la couleur du texte des métriques */
-        div[data-testid="stMetricLabel"] {
-            color: #475569 !important;
-        }
-        div[data-testid="stMetricValue"] {
-            color: #0F172A !important;
-        }
-        
-        /* Encadrement des formulaires */
         div[data-testid="stForm"] { 
-            border: 1px solid #CBD5E1; 
-            background-color: #FFFFFF;
+            border: 1px solid rgba(128, 128, 128, 0.25); 
+            background-color: transparent !important;
             border-radius: 10px; 
         }
     </style>
 """, unsafe_allow_html=True)
 
-# --- TITRE PRINCIPAL DE L'INTERFACE ---
+# Main interface title
 st.title(" OceaNova Action — One Health Predictive Dashboard")
 st.markdown("### Early-Warning DeepTech Infrastructure for Riverine Microplastic Risks & Maternal Health Protection")
 st.write(f"**Founder & CEO:** Rosanne Masugue Ngangoumoun | *Millennium Fellow 2026*")
 
-# Chemin vers ton fichier GeoJSON local
+# Path to my local GeoJSON file
 geojson_path = "data/points_impact_africa.geojson"
 
-# --- SIDEBAR : FILTRES ET FORMULAIRE CITOYEN ---
+# Sidebar: Filters and Citizen Form
 st.sidebar.header("OceaNova Spatial Control")
 st.sidebar.markdown("**Status:** Active AI Copilot Synced")
-
 st.sidebar.markdown("---")
 st.sidebar.subheader("Filter Trajectories")
 country_filter = st.sidebar.selectbox("Filter by Country", ["All Countries", "Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
 waterbody_filter = st.sidebar.selectbox("Filter by Waterbody Type", ["All Types", "River", "Lake", "Ocean/Beach", "Stream/Ditch"])
-
 st.sidebar.markdown("---")
 st.sidebar.subheader("Citizen Science Reporting")
 st.sidebar.info("Artisanal fishers and community health workers upload localized telemetry to re-compute risks.")
 
-# Formulaire de remontée de données de terrain
+# Field data submission form
 with st.sidebar.form(key="citizen_report_form", clear_on_submit=True):
     location_name = st.text_input("Waterway / Location Name", placeholder="e.g., Nyabarongo River, Kigali")
     new_country = st.selectbox("Country Location", ["Cameroon", "Rwanda", "Nigeria", "Ghana", "DR Congo", "Kenya"])
@@ -96,29 +73,24 @@ with st.sidebar.form(key="citizen_report_form", clear_on_submit=True):
     stagnation_observed = st.checkbox("Water stagnation or drainage blockage observed?")
     submit_button = st.form_submit_button(label="Submit Field Report & Trigger Satellite Core")
 
-# Traitement lors de la soumission du formulaire
+# Processing upon form submission
 if submit_button and location_name:
     if os.path.exists(geojson_path):
         with st.sidebar.spinner("Triggering ESA Copernicus & NASA GIBS API..."):
             time.sleep(1.5)
             fake_coords = [4.0, 9.0] if new_country == "Cameroon" else [-1.9, 30.0]
             sat_data = fetch_satellite_metadata(fake_coords)
-
         with st.sidebar.spinner("Computing Dual One Health Indices..."):
             time.sleep(1.0)
             stagnation_score = pollution_density * 1.3 if stagnation_observed else pollution_density
             confidence_fdi = sat_data.get("plastic_signature_confidence", 0.5)
-
             health_results = calculate_one_health_indices(
                 satellite_fdi=confidence_fdi,
                 stagnation_index=stagnation_score,
                 citizen_reports=pollution_density
             )
-
-        # Lecture et mise à jour du fichier GeoJSON local
         with open(geojson_path, "r") as f:
             geojson_data = json.load(f)
-
         base_coords = {
             "Cameroon": [4.02, 9.68], "Rwanda": [-1.97, 30.04], "Nigeria": [6.52, 3.37],
             "Ghana": [5.55, -0.2], "DR Congo": [-4.32, 15.31], "Kenya": [-1.28, 36.82]
@@ -127,7 +99,6 @@ if submit_button and location_name:
         base_lon = base_coords[new_country][1]
         lat = base_lat + random.uniform(-0.2, 0.2)
         lon = base_lon + random.uniform(-0.2, 0.2)
-
         new_feature = {
             "type": "Feature",
             "properties": {
@@ -144,15 +115,12 @@ if submit_button and location_name:
         geojson_data["features"].append(new_feature)
         with open(geojson_path, "w") as f:
             json.dump(geojson_data, f, indent=2)
-
         st.sidebar.success(f"Hotspot Analyzed! Global: {health_results['global_risk_index']}/100 | Maternal: {health_results['maternal_endocrine_index']}/100")
         st.rerun()
-
-# --- LOGIQUE DE FILTRAGE DES DONNÉES DE LA CARTE ---
+# Card Data filtering logic
 if os.path.exists(geojson_path):
     with open(geojson_path, "r") as f:
         raw_data = json.load(f)
-
     filtered_features = []
     for feature in raw_data["features"]:
         props = feature["properties"]
@@ -161,50 +129,42 @@ if os.path.exists(geojson_path):
         if match_country and match_type:
             filtered_features.append(feature)
 
-    # --- SECTION DES MÉTRIQUES DYNAMIQUES DUALES ---
+    # Dual Dynamic metrics section
     st.markdown("---")
     col_m1, col_m2, col_m3 = st.columns(3)
     col_m1.metric("Monitored Hotspots", len(filtered_features), f"Scope: {country_filter}")
-
     if filtered_features:
         avg_global = int(pd.Series([f["properties"].get("global_risk_index", 50) for f in filtered_features]).mean())
         avg_maternal = int(pd.Series([f["properties"].get("maternal_endocrine_index", 50) for f in filtered_features]).mean())
-
         col_m2.metric("Mean Global Risk Index", f"{avg_global} / 100", "Ecosystem Toxicity Level")
         col_m3.metric("Mean Maternal Endocrine Index", f"{avg_maternal} / 100", "Reproductive Hazard Level", delta_color="inverse")
     else:
         col_m2.metric("Mean Global Risk Index", "N/A")
         col_m3.metric("Mean Maternal Endocrine Index", "N/A")
 
-    # --- CARTOGRAPHIE INTERACTIVE FOLIUM ---
+    # Folium Interactive Mapping
     st.markdown("---")
     st.subheader("Live Microplastic Risk Mapping (One Health Trajectory)")
-
     map_center = [1.0, 20.0]
     if country_filter != "All Countries" and filtered_features:
         first_coords = filtered_features[0]["geometry"]["coordinates"]
         map_center = [first_coords[1], first_coords[0]]
-
     m = folium.Map(location=map_center, zoom_start=4 if country_filter == "All Countries" else 7, tiles=None)
     folium.TileLayer(tiles="OpenStreetMap", name="Standard Map", overlay=False).add_to(m)
     folium.TileLayer(tiles="https://eox.at{z}/{y}/{x}.jpg",
                      attr='&copy; Sentinel-2 Cloudless via EOX', name="ESA Sentinel-2 Analytics View", overlay=False).add_to(m)
 
-    # Boucle de génération des marqueurs sur la carte
+    # Loop for generating markers on the map
     for feature in filtered_features:
         coords = feature["geometry"]["coordinates"]
         props = feature["properties"]
         lat, lon = coords[1], coords[0]
-
         g_index = props.get("global_risk_index", 50)
         m_index = props.get("maternal_endocrine_index", 50)
-
         color = "red" if g_index > 75 else "orange" if g_index > 50 else "blue"
         badge_color = "#d9534f" if g_index > 75 else "#f0ad4e" if g_index > 50 else "#0275d8"
-
         water_type = props.get("waterbody_type", "River")
         icon_name = "tint" if water_type == "Ocean/Beach" else "cloud" if water_type == "Lake" else "leaf" if water_type == "Stream/Ditch" else "exclamation-sign"
-
         popup_text = f"""
         <div style='font-family: "Segoe UI", Arial, sans-serif; width: 260px; padding: 5px; color: #333333;'>
             <h4 style='margin: 0 0 4px 0; color: #0B0F19; font-size: 14px;'>{props['location_name']}</h4>
@@ -238,7 +198,7 @@ if os.path.exists(geojson_path):
     folium.LayerControl(position="topright", collapsed=False).add_to(m)
     st_folium(m, width=1300, height=450)
 
-    # --- MODULE FINANCIER D'IMPACT (TEXTILE-TO-CASH & SAAS DECK ALIGNMENT) ---
+    # Impact Financial Module ( Textile-to-Cash & SAAS Desk Alignment)
     st.markdown("---")
     st.subheader("Enterprise Business Architecture (Textile-to-Cash Validation)")
     st.write("Real-time telemetry monetization loop demonstrating financial scalability to grant boards and impact funds.")
@@ -260,7 +220,7 @@ if os.path.exists(geojson_path):
         st.info(f"Software Annual Recurring Revenue (ARR): ${total_saas_arr:,.2f}")
         st.success(f"Estimated Prevented Public Healthcare Crisis Costs (100x): ${health_savings:,.2f}")
 
-    # --- GRAPHISME DE L'ÉVOLUTION TEMPORELLE ---
+    # Visualization of Temporal Evolution
     st.markdown("---")
     st.subheader("Temporal Evolution of Ingested Hydro-Anomalies (2024 - 2026)")
     dates = pd.date_range(start="2024-01-01", end="2026-10-01", freq="ME")
@@ -270,8 +230,7 @@ if os.path.exists(geojson_path):
     chart_data = pd.DataFrame({"Month": dates, "Sanaga/Wouri River Basin (Cameroon)": wouri_data, "Nyabarongo River Basin (Rwanda)": nyabarongo_data}).set_index("Month")
     st.line_chart(chart_data, height=300)
     st.caption("FDI Cloud-Corrected Trends derived via Automated Sentinel-2 / Landsat-8 Geo-Queries.")
-
-    # --- FOOTER DE PROTECTION CORPORATIVE ---
+    
     st.markdown("---")
     st.caption("© 2026 OceaNova Action Inc. All rights reserved. Protected under OceaNova Proprietary and Non-Commercial License.")
 else:
