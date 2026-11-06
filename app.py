@@ -50,6 +50,7 @@ st.markdown("""
 
 
 # Translation French/English
+LANG_DICT = {
     "FR": {
         "title": "OceaNova Action — Tableau de Bord Prédictif One Health",
         "subtitle": "Infrastructure DeepTech d'alerte précoce pour les risques de microplastiques fluviaux et la protection de la santé maternelle",
@@ -90,7 +91,7 @@ st.markdown("""
         "no_temporal": "Aucune donnée temporelle disponible.",
         "global_trend": "Tendance du risque global",
         "maternal_trend": "Tendance endocrinienne maternelle",
-                "countries": {
+        "countries": {
             "Cameroon": "Cameroun", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
             "DR Congo": "RDC", "Burundi": "Burundi", "Kenya": "Kenya",
             "Ghana": "Ghana", "Chad": "Tchad", "Gabon": "Gabon"
@@ -132,7 +133,7 @@ st.markdown("""
         "fin_col2": "Secondary Engine: One Health SaaS Licensing",
         "slider_label": "Community-led Plastic Ingestion Volume (Metric Tons / Month)",
         "revenue_label": "Projected Enterprise Gross Revenue",
-        "impact_label": "Direct Impact Allocation (SDG 8 Living Wages)"
+        "impact_label": "Direct Impact Allocation (SDG 8 Living Wages)",
         "saas_active": "Active SaaS Licenses",
         "saas_units": "Districts / NGOs",
         "saas_revenue": "Recurring SaaS Revenue",
@@ -141,7 +142,7 @@ st.markdown("""
         "no_temporal": "No temporal data available.",
         "global_trend": "Global Risk Trend",
         "maternal_trend": "Maternal Endocrine Trend",
-                "countries": {
+        "countries": {
             "Cameroon": "Cameroon", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
             "DR Congo": "DR Congo", "Burundi": "Burundi", "Kenya": "Kenya",
             "Ghana": "Ghana", "Chad": "Chad", "Gabon": "Gabon"
@@ -152,9 +153,10 @@ st.markdown("""
             "Coral Reefs": "Coral Reefs", "Wetlands": "Wetlands"
         }
     }
-    COUNTRY_KEYS = ["Cameroon", "Rwanda", "Nigeria", "DR Congo", "Burundi", "Kenya", "Ghana", "Chad", "Gabon"]
-    ECO_KEYS = ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Coral Reefs", "Wetlands"]
 }
+COUNTRY_KEYS = ["Cameroon", "Rwanda", "Nigeria", "DR Congo", "Burundi", "Kenya", "Ghana", "Chad", "Gabon"]
+ECO_KEYS = ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Coral Reefs", "Wetlands"]
+
 # Language selection at the very top of the sidebar
 lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
 L = LANG_DICT["FR"] if "Français" in lang_choice else LANG_DICT["EN"]
