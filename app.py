@@ -186,9 +186,9 @@ st.sidebar.markdown(f"<p style='color:gray; font-size:12px; margin-top:-10px;'>{
 
 with st.sidebar.form("citizen_input_form"):
     location_input = st.text_input(L["input_location"], value="")
-        country_input = st.selectbox(L["input_country"], COUNTRY_KEYS, format_func=lambda c: L["countries"].get(c, c))
-        eco_input = st.selectbox(L["input_eco"], ECO_KEYS, format_func=lambda e: L["ecosystems"].get(e, e))
-        submitted = st.form_submit_button(L["btn_add"])
+    country_input = st.selectbox(L["input_country"], COUNTRY_KEYS, format_func=lambda c: L["countries"].get(c, c))
+    eco_input = st.selectbox(L["input_eco"], ECO_KEYS, format_func=lambda e: L["ecosystems"].get(e, e))
+    submitted = st.form_submit_button(L["btn_add"])
     
 # Delete button outside the form for immediate action    
 if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 3:
