@@ -89,7 +89,7 @@ st.markdown("""
         "no_hotspots": "Aucun hotspot actif à afficher pour cette zone.",
         "no_temporal": "Aucune donnée temporelle disponible.",
         "global_trend": "Tendance du risque global",
-        "maternal_trend": "Tendance endocrinienne maternelle"
+        "maternal_trend": "Tendance endocrinienne maternelle",
                 "countries": {
             "Cameroon": "Cameroun", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
             "DR Congo": "RDC", "Burundi": "Burundi", "Kenya": "Kenya",
@@ -140,7 +140,7 @@ st.markdown("""
         "no_hotspots": "No active hotspots to map for this scope.",
         "no_temporal": "No temporal data available.",
         "global_trend": "Global Risk Trend",
-        "maternal_trend": "Maternal Endocrine Trend"
+        "maternal_trend": "Maternal Endocrine Trend",
                 "countries": {
             "Cameroon": "Cameroon", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
             "DR Congo": "DR Congo", "Burundi": "Burundi", "Kenya": "Kenya",
