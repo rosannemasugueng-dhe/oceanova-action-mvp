@@ -90,6 +90,16 @@ st.markdown("""
         "no_temporal": "Aucune donnée temporelle disponible.",
         "global_trend": "Tendance du risque global",
         "maternal_trend": "Tendance endocrinienne maternelle"
+                "countries": {
+            "Cameroon": "Cameroun", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
+            "DR Congo": "RDC", "Burundi": "Burundi", "Kenya": "Kenya",
+            "Ghana": "Ghana", "Chad": "Tchad", "Gabon": "Gabon"
+        },
+        "ecosystems": {
+            "River": "Rivière / Fleuve", "Lake": "Lac", "Estuary": "Estuaire",
+            "Oceans & Seas": "Océans & Mers", "Mangrove Swamps": "Mangroves",
+            "Coral Reefs": "Récifs coralliens", "Wetlands": "Zones humides"
+        }
     },
     "EN": {
         "title": "OceaNova Action — One Health Predictive Dashboard",
@@ -131,7 +141,19 @@ st.markdown("""
         "no_temporal": "No temporal data available.",
         "global_trend": "Global Risk Trend",
         "maternal_trend": "Maternal Endocrine Trend"
+                "countries": {
+            "Cameroon": "Cameroon", "Rwanda": "Rwanda", "Nigeria": "Nigeria",
+            "DR Congo": "DR Congo", "Burundi": "Burundi", "Kenya": "Kenya",
+            "Ghana": "Ghana", "Chad": "Chad", "Gabon": "Gabon"
+        },
+        "ecosystems": {
+            "River": "River", "Lake": "Lake", "Estuary": "Estuary",
+            "Oceans & Seas": "Oceans & Seas", "Mangrove Swamps": "Mangrove Swamps",
+            "Coral Reefs": "Coral Reefs", "Wetlands": "Wetlands"
+        }
     }
+    COUNTRY_KEYS = ["Cameroon", "Rwanda", "Nigeria", "DR Congo", "Burundi", "Kenya", "Ghana", "Chad", "Gabon"]
+    ECO_KEYS = ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Coral Reefs", "Wetlands"]
 }
 # Language selection at the very top of the sidebar
 lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
@@ -148,8 +170,8 @@ if "initialized" not in st.session_state:
     # Initial default data
     st.session_state.hotspots = [
         {"name": "Nyabarongo River", "country": "Rwanda", "ecosystem": "River", "latitude": -1.97, "longitude": 30.10, "global_risk": 75, "maternal_risk": 81},
-        {"name": "Sanaga River", "country": "Cameroun", "ecosystem": "River", "latitude": 4.20, "longitude": 10.50, "global_risk": 72, "maternal_risk": 78},
-        {"name": "Wouri Estuary", "country": "Cameroun", "ecosystem": "Estuary", "latitude": 4.01, "longitude": 9.67, "global_risk": 80, "maternal_risk": 85}
+        {"name": "Sanaga River", "country": "Cameroon", "ecosystem": "River", "latitude": 4.20, "longitude": 10.50, "global_risk": 72, "maternal_risk": 78},
+        {"name": "Wouri Estuary", "country": "Cameroon", "ecosystem": "Estuary", "latitude": 4.01, "longitude": 9.67, "global_risk": 80, "maternal_risk": 85}
     ]
 
 # Sidebar input forms
@@ -162,9 +184,9 @@ st.sidebar.markdown(f"<p style='color:gray; font-size:12px; margin-top:-10px;'>{
 
 with st.sidebar.form("citizen_input_form"):
     location_input = st.text_input(L["input_location"], value="")
-    country_input = st.selectbox(L["input_country"], ["Cameroun", "Rwanda", "Nigeria", "RDC", "Burundi", "Kenya", "Ghana", "Tchad", "Gabon"])
-    eco_input = st.selectbox(L["input_eco"], ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Coral Reefs", "Wetlands"])
-    submitted = st.form_submit_button(L["btn_add"])
+        country_input = st.selectbox(L["input_country"], COUNTRY_KEYS, format_func=lambda c: L["countries"].get(c, c))
+        eco_input = st.selectbox(L["input_eco"], ECO_KEYS, format_func=lambda e: L["ecosystems"].get(e, e))
+        submitted = st.form_submit_button(L["btn_add"])
     
 # Delete button outside the form for immediate action    
 if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 3:
@@ -198,8 +220,14 @@ if submitted and location_input:
 
 # Dashboard
 # Filter and main interface
-country_filter = st.selectbox(f"{L['scope']}", [L["all"]] + list(set([h["country"] for h in st.session_state.hotspots])))
-filtered_hotspots = [h for h in st.session_state.hotspots if country_filter == L["all"] or h["country"] == country_filter]
+country_options = ["ALL"] + sorted({h["country"] for h in st.session_state.hotspots})
+country_filter = st.selectbox(
+    L["scope"],
+    country_options,
+    format_func=lambda c: L["all"] if c == "ALL" else L["countries"].get(c, c)
+)
+country_label = L["all"] if country_filter == "ALL" else L["countries"].get(country_filter, country_filter)
+filtered_hotspots = [h for h in st.session_state.hotspots if country_filter == "ALL" or h["country"] == country_filter]
 
 # Applying filtering    
 # Dynamic calculation of metrics
@@ -212,7 +240,7 @@ else:
 
 # Displaying metrics
 col1, col2, col3 = st.columns(3)
-col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"{L['scope']}: {country_filter}")
+col1.metric(L["monitored_hotspots"], total_hotspots, delta=f"{L['scope']}: {country_label}")
 col2.metric(L["mean_global"], f"{avg_global} / 100", delta=L["toxicity_level"], delta_color="inverse")
 col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"], delta_color="inverse")
 
