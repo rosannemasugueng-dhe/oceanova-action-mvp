@@ -280,20 +280,29 @@ col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"]
 st.write("---")
 
 # Control and display of the folium card
+# Control and display of the folium card
 st.subheader(f"{L['map_title']}")
 if filtered_hotspots:
     # Safe centering on the first item [0] in the filtered list
     m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]], zoom_start=5, control_scale=True)
     for h in filtered_hotspots:
         popup_text = f"<b>{html.escape(h['name'])}</b><br>Global Risk: {h['global_risk']}/100<br>Maternal Index: {h['maternal_risk']}/100"
+        # Dynamic assignment of icon color based on official clinical thresholds
+        if h["maternal_risk"] > 75:
+            marker_color = "red"      # Critique / Warning Regarding Endocrine Disruptors
+        elif h["maternal_risk"] > 45:
+            marker_color = "orange"   # Moderate / Increased monitoring required
+        else:
+            marker_color = "green"    # Low / Stable and healthy environmental threshold
         folium.Marker(
-            location=[h["latitude"], h["longitude"]], popup=folium.Popup(popup_text, max_width=300),
-            icon=folium.Icon(color="red" if h["maternal_risk"] > 80 else "orange", icon="info-sign")
+            location=[h["latitude"], h["longitude"]], 
+            popup=folium.Popup(popup_text, max_width=300),
+            icon=folium.Icon(color=marker_color, icon="info-sign")
         ).add_to(m)
     st_folium(m, width=1300, height=450, key="oceanova_map")
 else:
     st.info(L["no_hotspots"])
-st.write("---")
+
 
 # Integration of the financial architecture between the map and the graph.
 st.subheader(L["fin_title"])
