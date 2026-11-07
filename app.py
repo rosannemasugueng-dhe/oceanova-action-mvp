@@ -202,27 +202,36 @@ if submitted and location_input:
         search_query = f"{location_input}, {country_input}"
         location = geolocator.geocode(search_query, timeout=10)
         if location:
-            # Alert database for historically heavily polluted rivers
-            heavy_pollution_keywords = ["niger", "nairobi", "wouri", "sanaga", "cross", "nun", "osun", "mfoundi", "kigali"]
-            is_highly_polluted = any(kw in location_input.lower() for kw in heavy_pollution_keywords)
+            # 1. Pollution Monster Database (Red Alert)
+            heavy_pollution_keywords = ["niger", "nairobi", "wouri", "mfoundi", "nun", "osun", "ogun", "vaals"]
+            # 2. Database of Pristine Ecological Sanctuaries (Safe Zone)
+            pure_water_keywords = ["donga", "mora", "sanaga", "nyabarongo"]
+            
+            loc_lower = location_input.lower()
+            is_highly_polluted = any(kw in loc_lower for kw in heavy_pollution_keywords)
+            is_pure_water = any(kw in loc_lower for kw in pure_water_keywords)
 
             if is_highly_polluted:
                 base_fdi = random.uniform(0.78, 0.94)
                 base_stagnation = random.randint(75, 95)
                 base_reports = random.randint(65, 90)
+            elif is_pure_water:
+                base_fdi = random.uniform(0.05, 0.15)
+                base_stagnation = random.randint(10, 25)
+                base_reports = random.randint(2, 10)
             else:
-                # Standard values ​​for other types of ecosystems
+                # Default standard values ​​based on ecosystem type
                 if eco_input in ["Estuary", "Oceans & Seas", "Mangrove Swamps"]:
-                    base_fdi = random.uniform(0.48, 0.65)
+                    base_fdi = random.uniform(0.45, 0.60)
                     base_stagnation = random.randint(55, 75)
                 elif eco_input in ["Lake", "Wetlands"]:
-                    base_fdi = random.uniform(0.40, 0.55)
+                    base_fdi = random.uniform(0.35, 0.50)
                     base_stagnation = random.randint(60, 80)
                 else:
-                    base_fdi = random.uniform(0.35, 0.52)
-                    base_stagnation = random.randint(45, 68)
-                base_reports = random.randint(25, 55)
-            # Calculation via my balanced One Health module
+                    base_fdi = random.uniform(0.30, 0.45)
+                    base_stagnation = random.randint(35, 55)
+                base_reports = random.randint(15, 40)
+            # Calculation via the One Health clinical module
             risk_results = calculate_one_health_indices(base_fdi, base_stagnation, base_reports)
 
             new_point = {
