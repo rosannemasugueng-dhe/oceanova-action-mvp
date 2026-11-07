@@ -5,8 +5,8 @@ def calculate_one_health_indices(satellite_fdi, stagnation_index, citizen_report
     """
     # 1. Global Risk Index (0-100): General population toxicity and water safety
     # Fuses satellite anomalies (40%), field stagnation (30%), and visual reporting density (30%)
-    base_global = (satellite_fdi * 40) + ((stagnation_index / 100) * 30) + ((citizen_reports / 100) * 30)
-    global_index = min(max(int(base_global * 100), 0), 100)
+    base_global = (satellite_fdi * 40) + (stagnation_index * 0.30) + (citizen_reports * 0.30)
+    global_index = min(max(int(base_global), 0), 100)
     
     # 2. Maternal Endocrine Vulnerability Index (0-100): Isolates hormonal disruption hazards
     # Amplified by persistent water stagnation conditions which increase chemical concentration
