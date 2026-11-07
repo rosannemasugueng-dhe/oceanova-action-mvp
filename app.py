@@ -202,21 +202,27 @@ if submitted and location_input:
         search_query = f"{location_input}, {country_input}"
         location = geolocator.geocode(search_query, timeout=10)
         if location:
-            if eco_input in ["Estuary", "Oceans & Seas", "Mangrove Swamps"]:
-                # Coastal, marine, and estuarine areas accumulate more waste, including organic matter
-                base_fdi = random.uniform(0.52, 0.68)
-                base_stagnation = random.randint(65, 82)
-            elif eco_input in ["Lake", "Wetlands"]:
-                # Lakes and wetlands have high levels of stagnation but receive fewer direct inflows
-                base_fdi = random.uniform(0.38, 0.52)
-                base_stagnation = random.randint(70, 88)
+            # Alert database for historically heavily polluted rivers
+            heavy_pollution_keywords = ["niger", "nairobi", "wouri", "sanaga", "cross", "nun", "osun", "mfoundi", "kigali"]
+            is_highly_polluted = any(kw in location_input.lower() for kw in heavy_pollution_keywords)
+
+            if is_highly_polluted:
+                base_fdi = random.uniform(0.78, 0.94)
+                base_stagnation = random.randint(75, 95)
+                base_reports = random.randint(65, 90)
             else:
-                # Rivers have more dynamic and variable water flows
-                base_fdi = random.uniform(0.40, 0.58)
-                base_stagnation = random.randint(45, 72)
-            
-            base_reports = random.randint(25, 60)
-            
+                # Standard values ​​for other types of ecosystems
+                if eco_input in ["Estuary", "Oceans & Seas", "Mangrove Swamps"]:
+                    base_fdi = random.uniform(0.48, 0.65)
+                    base_stagnation = random.randint(55, 75)
+                elif eco_input in ["Lake", "Wetlands"]:
+                    base_fdi = random.uniform(0.40, 0.55)
+                    base_stagnation = random.randint(60, 80)
+                else:
+                    base_fdi = random.uniform(0.35, 0.52)
+                    base_stagnation = random.randint(45, 68)
+                base_reports = random.randint(25, 55)
+            # Calculation via my balanced One Health module
             risk_results = calculate_one_health_indices(base_fdi, base_stagnation, base_reports)
 
             new_point = {
@@ -225,9 +231,8 @@ if submitted and location_input:
                 "ecosystem": eco_input,
                 "latitude": location.latitude, 
                 "longitude": location.longitude,
-                # The indices are ultimately calculated in an organic way and fluctuate naturally!
-                "global_risk": risk_results["global_risk_index"], 
-                "maternal_risk": risk_results["maternal_endocrine_index"]
+                "global_risk": int(risk_results["global_risk_index"]), 
+                "maternal_risk": int(risk_results["maternal_endocrine_index"])
             }
             st.session_state.hotspots.append(new_point)
             st.sidebar.success(L["alert_success"])
@@ -236,7 +241,6 @@ if submitted and location_input:
             st.sidebar.error(L["alert_error"])
     except Exception:
         st.sidebar.error(L["alert_error"])
-
 
 # Dashboard
 # Filter and main interface
