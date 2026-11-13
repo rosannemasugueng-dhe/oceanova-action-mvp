@@ -72,3 +72,10 @@ def save_new_hotspot(name: str, country: str, ecosystem: str, latitude: float, l
     db.add(record)
     db.commit()
     db.close()
+def delete_hotspot_by_id(hotspot_id: int):
+    db = SessionLocal()
+    record = db.query(RiverHotspot).filter(RiverHotspot.id == hotspot_id).first()
+    if record:
+        db.delete(record)
+        db.commit()
+    db.close()
