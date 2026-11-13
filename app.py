@@ -10,6 +10,35 @@ from PIL import Image
 from geopy.geocoders import Nominatim
 import streamlit as st
 
+
+# 5-level clinical classification function
+def get_clinical_risk_tier(score: float, lang: str = "FR") -> dict:
+    if score <= 15:
+        return {
+            "hex": "#1E88E5",  # Bleu (0-15)
+            "label": "Sanctuaire Écologique (0–15)" if lang == "FR" else "Ecological Sanctuary (0–15)"
+        }
+    elif score <= 35:
+        return {
+            "hex": "#43A047",  # Vert (16-35)
+            "label": "Risque Faible (16–35)" if lang == "FR" else "Low Risk (16–35)"
+        }
+    elif score <= 55:
+        return {
+            "hex": "#FDD835",  # Jaune (36-55)
+            "label": "Alerte Modérée (36–55)" if lang == "FR" else "Moderate Alert (36–55)"
+        }
+    elif score <= 75:
+        return {
+            "hex": "#FB8C00",  # Orange (56-75)
+            "label": "Risque Élevé (56–75)" if lang == "FR" else "High Risk (56–75)"
+        }
+    else:
+        return {
+            "hex": "#E53935",  # Rouge (76-100)
+            "label": "Urgence Clinique (76–100)" if lang == "FR" else "Clinical Emergency (76–100)"
+        }
+
 # Page configuration 
 try:
     logo_img = Image.open("logo.jpeg")
@@ -280,25 +309,35 @@ col3.metric(L["mean_maternal"], f"{avg_maternal} / 100", delta=L["hazard_level"]
 st.write("---")
 
 # Control and display of the folium card
-# Control and display of the folium card
 st.subheader(f"{L['map_title']}")
 if filtered_hotspots:
-    # Safe centering on the first item [0] in the filtered list
-    m = folium.Map(location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]], zoom_start=5, control_scale=True)
+    m = folium.Map(
+        location=[filtered_hotspots[0]["latitude"], filtered_hotspots[0]["longitude"]],
+        zoom_start=5,
+        control_scale=True
+    )
+    
+    current_lang = st.session_state.get("lang", "FR")
     for h in filtered_hotspots:
-        popup_text = f"<b>{html.escape(h['name'])}</b><br>Global Risk: {h['global_risk']}/100<br>Maternal Index: {h['maternal_risk']}/100"
-        # Dynamic assignment of icon color based on official clinical thresholds
-        if h["maternal_risk"] > 75:
-            marker_color = "red"      # Critique / Warning Regarding Endocrine Disruptors
-        elif h["maternal_risk"] > 45:
-            marker_color = "orange"   # Moderate / Increased monitoring required
-        else:
-            marker_color = "green"    # Low / Stable and healthy environmental threshold
-        folium.Marker(
-            location=[h["latitude"], h["longitude"]], 
-            popup=folium.Popup(popup_text, max_width=300),
-            icon=folium.Icon(color=marker_color, icon="info-sign")
+        tier = get_clinical_risk_tier(h["maternal_risk"], lang=current_lang)
+        
+        popup_text = (
+            f"<b>{html.escape(h['name'])}</b><br>"
+            f"<b>Status:</b> <span style='color:{tier['hex']}; font-weight:bold;'>{tier['label']}</span><br>"
+            f"Global Risk: {h['global_risk']}/100<br>"
+            f"Maternal Index: {h['maternal_risk']}/100"
+        )
+        folium.CircleMarker(
+            location=[h["latitude"], h["longitude"]],
+            radius=11,
+            popup=folium.Popup(popup_text, max_width=320),
+            tooltip=f"{h['name']} ({h['maternal_risk']}/100)",
+            color="#111111",       
+            fill=True,
+            fill_color=tier["hex"],
+            fill_opacity=0.9
         ).add_to(m)
+        
     st_folium(m, width=1300, height=450, key="oceanova_map")
 else:
     st.info(L["no_hotspots"])
