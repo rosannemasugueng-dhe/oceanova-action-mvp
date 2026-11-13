@@ -312,7 +312,7 @@ if filtered_hotspots:
         control_scale=True
     )
     for h in filtered_hotspots:
-    tier = get_clinical_risk_tier(h["maternal_risk"], lang=current_lang)
+        tier = get_clinical_risk_tier(h["maternal_risk"], lang=current_lang)
         
         popup_text = (
             f"<b>{html.escape(h['name'])}</b><br>"
