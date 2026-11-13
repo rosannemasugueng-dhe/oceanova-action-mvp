@@ -9,6 +9,8 @@ from streamlit_folium import st_folium
 from PIL import Image
 from geopy.geocoders import Nominatim
 import streamlit as st
+from database import get_all_hotspots, save_new_hotspot
+hotspots = get_all_hotspots()
 
 
 # 5-level clinical classification function
@@ -262,17 +264,16 @@ if submitted and location_input:
                 base_reports = random.randint(15, 40)
             # Calculation via the One Health clinical module
             risk_results = calculate_one_health_indices(base_fdi, base_stagnation, base_reports)
-
-            new_point = {
-                "name": location_input, 
-                "country": country_input, 
-                "ecosystem": eco_input,
-                "latitude": location.latitude, 
-                "longitude": location.longitude,
-                "global_risk": int(risk_results["global_risk_index"]), 
-                "maternal_risk": int(risk_results["maternal_endocrine_index"])
-            }
-            st.session_state.hotspots.append(new_point)
+            save_new_hotspot(
+                name=location_input,
+                country=country_input,
+                ecosystem=eco_input,
+                latitude=location.latitude,
+                longitude=location.longitude,
+                global_risk=int(risk_results["global_risk_index"]),
+                maternal_risk=int(risk_results["maternal_endocrine_index"])
+            )
+            st.session_state.hotspots = get_all_hotspots()
             st.sidebar.success(L["alert_success"])
             st.rerun()
         else:
