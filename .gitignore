@@ -4,6 +4,12 @@
 secrets.toml
 credentials.json
 
+# --- Local Databases & Proprietary Field Data ---
+*.db
+*.sqlite
+*.sqlite3
+oceanova_rivers.db
+
 # --- Python Virtual Environments ---
 venv/
 .venv/
