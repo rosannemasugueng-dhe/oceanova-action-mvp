@@ -16,23 +16,23 @@ class RiverHotspot(Base):
     __tablename__ = "river_hotspots"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    country = Column(String, default="Africa")
+    country = Column(String, nullable=False)
+    ecosystem = Column(String, default="River")
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    global_risk = Column(Float, nullable=False)
-    maternal_risk = Column(Float, nullable=False)
+    global_risk = Column(Integer, nullable=False)
+    maternal_risk = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 def init_db():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    # Load reference data only if the database is empty
     if db.query(RiverHotspot).count() == 0:
         seed_rivers = [
-            RiverHotspot(name="Donga River", country="Cameroon", latitude=6.8833, longitude=10.5500, global_risk=12.0, maternal_risk=11.5),
-            RiverHotspot(name="Nyabugogo River", country="Rwanda", latitude=-1.9397, longitude=30.0444, global_risk=64.0, maternal_risk=68.5),
-            RiverHotspot(name="Niger River (Onitsha)", country="Nigeria", latitude=6.1498, longitude=6.7857, global_risk=81.0, maternal_risk=86.0),
-            RiverHotspot(name="Nairobi River", country="Kenya", latitude=-1.2833, longitude=36.8333, global_risk=84.0, maternal_risk=89.0),
+            RiverHotspot(name="Donga River", country="Cameroon", ecosystem="River", latitude=6.8833, longitude=10.5500, global_risk=12, maternal_risk=11),
+            RiverHotspot(name="Nyabugogo River", country="Rwanda", ecosystem="River", latitude=-1.9397, longitude=30.0444, global_risk=64, maternal_risk=68),
+            RiverHotspot(name="Niger River (Onitsha)", country="Nigeria", ecosystem="River", latitude=6.1498, longitude=6.7857, global_risk=81, maternal_risk=86),
+            RiverHotspot(name="Nairobi River", country="Kenya", ecosystem="River", latitude=-1.2833, longitude=36.8333, global_risk=84, maternal_risk=89),
         ]
         db.add_all(seed_rivers)
         db.commit()
@@ -48,6 +48,7 @@ def get_all_hotspots() -> list[dict]:
             "id": r.id,
             "name": r.name,
             "country": r.country,
+            "ecosystem": r.ecosystem,
             "latitude": r.latitude,
             "longitude": r.longitude,
             "global_risk": r.global_risk,
@@ -56,12 +57,13 @@ def get_all_hotspots() -> list[dict]:
         for r in records
     ]
 
-def save_new_hotspot(name: str, country: str, latitude: float, longitude: float, global_risk: float, maternal_risk: float):
+def save_new_hotspot(name: str, country: str, ecosystem: str, latitude: float, longitude: float, global_risk: int, maternal_risk: int):
     init_db()
     db = SessionLocal()
     record = RiverHotspot(
         name=name,
         country=country,
+        ecosystem=ecosystem,
         latitude=latitude,
         longitude=longitude,
         global_risk=global_risk,
