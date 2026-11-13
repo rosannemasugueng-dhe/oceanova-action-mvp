@@ -9,9 +9,7 @@ from streamlit_folium import st_folium
 from PIL import Image
 from geopy.geocoders import Nominatim
 import streamlit as st
-from database import get_all_hotspots, save_new_hotspot
-hotspots = get_all_hotspots()
-
+from database import get_all_hotspots, save_new_hotspot, delete_hotspot_by_id
 
 # 5-level clinical classification function
 def get_clinical_risk_tier(score: float, lang: str = "FR") -> dict:
@@ -191,21 +189,16 @@ ECO_KEYS = ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Cor
 # Language selection at the very top of the sidebar
 lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
 L = LANG_DICT["FR"] if "Français" in lang_choice else LANG_DICT["EN"]
+current_lang = "FR" if "Français" in lang_choice else "EN"
 
 # Interface header hierarchy
 st.title(L["title"])
 st.caption(L["subtitle"])
 st.markdown(f"<p style='font-size:13px; color:gray; margin-top:-10px;'>{L['ceo_line']}</p>", unsafe_allow_html=True)
 st.write("")
+
 # Initialization of session state memory
-if "initialized" not in st.session_state:
-    st.session_state.initialized = True
-    # Initial default data
-    st.session_state.hotspots = [
-        {"name": "Nyabarongo River", "country": "Rwanda", "ecosystem": "River", "latitude": -1.97, "longitude": 30.10, "global_risk": 75, "maternal_risk": 81},
-        {"name": "Sanaga River", "country": "Cameroon", "ecosystem": "River", "latitude": 4.20, "longitude": 10.50, "global_risk": 72, "maternal_risk": 78},
-        {"name": "Wouri Estuary", "country": "Cameroon", "ecosystem": "Estuary", "latitude": 4.01, "longitude": 9.67, "global_risk": 80, "maternal_risk": 85}
-    ]
+st.session_state.hotspots = get_all_hotspots()
 
 # Sidebar input forms
 st.sidebar.markdown(f"### {L['sidebar_header']}")
@@ -220,10 +213,11 @@ with st.sidebar.form("citizen_input_form"):
     country_input = st.selectbox(L["input_country"], COUNTRY_KEYS, format_func=lambda c: L["countries"].get(c, c))
     eco_input = st.selectbox(L["input_eco"], ECO_KEYS, format_func=lambda e: L["ecosystems"].get(e, e))
     submitted = st.form_submit_button(L["btn_add"])
-    
+     
 # Delete button outside the form for immediate action    
-if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 3:
-    st.session_state.hotspots.pop()
+if st.sidebar.button(L["btn_delete"]) and len(st.session_state.hotspots) > 0:
+    delete_hotspot_by_id(st.session_state.hotspots[0]["id"])
+    st.session_state.hotspots = get_all_hotspots()
     st.rerun()
 
 # Geocoding logic and independent calculations
@@ -317,9 +311,7 @@ if filtered_hotspots:
         zoom_start=5,
         control_scale=True
     )
-    
-    current_lang = st.session_state.get("lang", "FR")
-    for h in filtered_hotspots:
+        for h in filtered_hotspots:
         tier = get_clinical_risk_tier(h["maternal_risk"], lang=current_lang)
         
         popup_text = (
@@ -343,6 +335,35 @@ if filtered_hotspots:
 else:
     st.info(L["no_hotspots"])
 
+# Monitored waterways registry table with row-by-row deletion
+st.subheader("Registre des Bassins Versants & Gestion des Données" if current_lang == "FR" else "Monitored Waterways Registry & Data Management")
+if filtered_hotspots:
+    table_rows = []
+    for h in filtered_hotspots:
+        tier = get_clinical_risk_tier(h["maternal_risk"], lang=current_lang)
+        table_rows.append({
+            "ID": h["id"],
+            "Cours d'eau / Zone" if current_lang == "FR" else "Waterway / Location": h["name"],
+            "Pays" if current_lang == "FR" else "Country": L["countries"].get(h["country"], h["country"]),
+            "Écosystème" if current_lang == "FR" else "Ecosystem": L["ecosystems"].get(h.get("ecosystem", "River"), h.get("ecosystem", "River")),
+            "Indice Global (/100)" if current_lang == "FR" else "Global Index (/100)": h["global_risk"],
+            "Vulnérabilité Maternelle (/100)" if current_lang == "FR" else "Maternal Vulnerability (/100)": h["maternal_risk"],
+            "Niveau Clinique (5 Paliers)" if current_lang == "FR" else "Clinical Tier (5-Level)": tier["label"],
+            "Latitude": round(h["latitude"], 4),
+            "Longitude": round(h["longitude"], 4)
+        })
+    st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
+
+    with st.expander("Supprimer une entrée spécifique" if current_lang == "FR" else "Delete a specific entry"):
+        delete_options = {f"ID #{h['id']} — {h['name']} ({L['countries'].get(h['country'], h['country'])})": h["id"] for h in filtered_hotspots}
+        selected_label = st.selectbox(
+            "Choisissez le cours d'eau à supprimer :" if current_lang == "FR" else "Select the waterway to delete:",
+            list(delete_options.keys())
+        )
+        if st.button("Confirmer la suppression" if current_lang == "FR" else "Confirm Deletion", type="primary"):
+            delete_hotspot_by_id(delete_options[selected_label])
+            st.session_state.hotspots = get_all_hotspots()
+            st.rerun()
 
 # Integration of the financial architecture between the map and the graph.
 st.subheader(L["fin_title"])
