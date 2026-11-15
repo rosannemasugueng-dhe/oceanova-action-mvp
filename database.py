@@ -5,9 +5,12 @@ from datetime import datetime
 
 # SQLite compatible locally AND PostGIS/PostgreSQL in production
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///oceanova_rivers.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {},
+    pool_pre_ping=True,
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -72,6 +75,7 @@ def save_new_hotspot(name: str, country: str, ecosystem: str, latitude: float, l
     db.add(record)
     db.commit()
     db.close()
+
 def delete_hotspot_by_id(hotspot_id: int):
     db = SessionLocal()
     record = db.query(RiverHotspot).filter(RiverHotspot.id == hotspot_id).first()
