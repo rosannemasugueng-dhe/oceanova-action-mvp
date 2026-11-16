@@ -10,6 +10,8 @@ from PIL import Image
 from geopy.geocoders import Nominatim
 import streamlit as st
 from database import get_all_hotspots, save_new_hotspot, delete_hotspot_by_id
+from dotenv import load_dotenv
+load_dotenv()
 
 # 5-level clinical classification function
 def get_clinical_risk_tier(score: float, lang: str = "FR") -> dict:
