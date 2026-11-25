@@ -193,7 +193,13 @@ COUNTRY_KEYS = ["Cameroon", "Rwanda", "Nigeria", "DR Congo", "Burundi", "Kenya",
 ECO_KEYS = ["River", "Lake", "Estuary", "Oceans & Seas", "Mangrove Swamps", "Coral Reefs", "Wetlands"]
 
 # Language selection at the very top of the sidebar
-lang_choice = st.sidebar.selectbox(LANG_DICT["FR"]["lang_select"], ["Français 🇫🇷", "English 🇬🇧"])
+qp_lang = st.query_params.get("lang", "fr")
+lang_index = 0 if qp_lang == "fr" else 1
+lang_choice = st.sidebar.selectbox(
+    LANG_DICT["FR"]["lang_select"],
+    ["Français 🇫🇷", "English 🇬🇧"],
+    index=lang_index
+)
 L = LANG_DICT["FR"] if "Français" in lang_choice else LANG_DICT["EN"]
 current_lang = "FR" if "Français" in lang_choice else "EN"
 
