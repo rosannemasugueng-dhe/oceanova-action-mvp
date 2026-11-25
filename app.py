@@ -52,6 +52,10 @@ st.set_page_config(
     page_icon=logo_img, 
     layout="wide"
 )
+try:
+    st.logo("logo.jpeg")
+except Exception:
+    pass
 
 # Importing security modules from your src/ directory
 from src.ingestion_satellite import fetch_satellite_metadata
@@ -69,7 +73,7 @@ st.markdown("""
             padding: 15px; 
             border-radius: 10px; 
             border: 1px solid rgba(128, 128, 128, 0.2);
-            border-left: 5px solid #00B4D8 !important; 
+            border-left: 5px solid #26b7cd !important; 
         }
         div[data-testid="stForm"] { 
             border: 1px solid rgba(128, 128, 128, 0.25); 
@@ -198,13 +202,19 @@ st.title(L["title"])
 st.caption(L["subtitle"])
 st.markdown(f"<p style='font-size:13px; color:gray; margin-top:-10px;'>{L['ceo_line']}</p>", unsafe_allow_html=True)
 st.write("")
+st.warning(
+    "Version MVP : les indices affichés sont simulés à des fins de démonstration. "
+    "Ils ne proviennent pas encore de mesures réelles." if current_lang == "FR" else
+    "MVP version: the indices shown are simulated for demonstration purposes. "
+    "They do not yet come from real measurements."
+)
 
 # Initialization of session state memory
 st.session_state.hotspots = get_all_hotspots()
 
 # Sidebar input forms
 st.sidebar.markdown(f"### {L['sidebar_header']}")
-st.sidebar.markdown(f"<p style='color:#00B4D8; font-size:12px; margin-top:-15px;'>{L['sidebar_status']}</p>", unsafe_allow_html=True)
+st.sidebar.markdown(f"<p style='color:#26b7cd; font-size:12px; margin-top:-15px;'>{L['sidebar_status']}</p>", unsafe_allow_html=True)
 st.sidebar.write("---")
  
 st.sidebar.markdown(f"#### {L['sidebar_title']}")
